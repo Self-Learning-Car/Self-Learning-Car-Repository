@@ -1,5 +1,7 @@
 # Self-Learning-Car-Repository
 
+Każde zadanie z Azure DevOps, w którym musimy dodać coś do repozytorium, napisać kod, starajmy się dodawać jako zadanie w ramach projektu na githubie.
+
 ## Praca z GIT
 0. Skonfiguruj Git-flow na SourceTree.
 1. Pracujemy na branchu develop.
