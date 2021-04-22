@@ -70,7 +70,7 @@ class Game(arcade.Window):
         if self.pressed_up==False and self.pressed_down==False:
             self.car_sprite.deacceleration()
         if self.pressed_down==True and self.pressed_up==False:
-            self.car_sprite.car_break()
+            self.car_sprite.car_break_back()
         if self.pressed_left==True and self.pressed_right==False:
             self.car_sprite.left()
         if self.pressed_right==True and self.pressed_left==False:
