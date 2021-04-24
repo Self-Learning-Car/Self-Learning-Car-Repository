@@ -1,7 +1,7 @@
 import arcade
 import Car
 import Parking
-
+import random
 
 class Game(arcade.Window):
 
@@ -13,6 +13,17 @@ class Game(arcade.Window):
         self.pressed_right = False
         self.pressed_left = False
 
+        # Car spawn
+
+        self.random_car_placement = False
+        self.random_car_number = True
+        self.parked_car_number = 10
+
+        self.spawn_points = [(1,430,230),(2,572,230),(3,714,230),(4,856,230),(5,998,230),(6,1140,230),(7,1282,230),(8,1424,230),(9,1566,230),
+                             (10,430,780),(11,572,780),(12,714,780),(13,856,780),(14,998,780),(15,1140,780),(16,1282,780),(17,1424,780),(18,1566,780)]
+
+        # Car spawn
+
         arcade.set_background_color(arcade.color.AMAZON)
 
         self.setup()
@@ -22,16 +33,19 @@ class Game(arcade.Window):
         # If you have sprite lists, you should create them here,
         # and set them to None
 
-        self.car_list = None
+        self.player_car_list = None
         self.car_sprite = None
 
+        self.parked_car_list = None
+        self.parked_car_sprite = None
 
 
     def setup(self):
         """ Set up the game variables. Call to re-start the game. """
         # Create your sprites and sprite lists here
 
-        self.car_list = arcade.SpriteList()
+        self.player_car_list = arcade.SpriteList()
+        self.parked_car_list = arcade.SpriteList()
 
         self.background = arcade.load_texture("assets/Map.png")
         self.car_sprite = Car.Car("assets/Car.png", 0.15)
@@ -39,10 +53,33 @@ class Game(arcade.Window):
         self.car_sprite.center_y = 500
         self.car_sprite.angle = -90
 
+        # Car spawn
 
-        self.car_list.append(self.car_sprite)
+        if self.random_car_placement:
+            if self.random_car_number:
+                cars_to_spawn = random.sample(self.spawn_points,random.randrange(0,len(self.spawn_points)-1))
+            else:
+                cars_to_spawn = random.sample(self.spawn_points,self.parked_car_number)
 
-        pass
+        else:
+            cars_to_spawn = []
+            for spawn_point in self.spawn_points:
+                if spawn_point[0] in [3,9,11,16]:
+                    pass
+                else:
+                    cars_to_spawn.append(spawn_point)
+
+        for spawn_point in cars_to_spawn:
+            number = random.randrange(1, 10)
+            self.parked_car_sprite = Car.Car(f"assets/Car{number}.png", 0.15)
+            self.parked_car_sprite.center_x = spawn_point[1]
+            self.parked_car_sprite.center_y = spawn_point[2]
+            self.parked_car_list.append(self.parked_car_sprite)
+
+        # Car spawn
+
+        self.player_car_list.append(self.car_sprite)
+
 
     def on_draw(self):
         """
@@ -55,7 +92,8 @@ class Game(arcade.Window):
         arcade.start_render()
 
         arcade.draw_lrwh_rectangle_textured(0, 0, 1900, 1000, self.background)
-        self.car_list.draw()
+        self.player_car_list.draw()
+        self.parked_car_list.draw()
 
         # Call draw() on all your sprite lists below
 
@@ -82,7 +120,7 @@ class Game(arcade.Window):
 
 
 
-        self.car_list.update()
+        self.player_car_list.update()
 
     def on_key_press(self, key, key_modifiers):
         if key == arcade.key.UP:
