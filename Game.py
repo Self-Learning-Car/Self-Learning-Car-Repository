@@ -15,9 +15,9 @@ class Game(arcade.Window):
 
         # Car spawn
 
-        self.random_car_placement = False
-        self.random_car_number = True
-        self.parked_car_number = 10
+        self.random_car_placement = True
+        self.random_car_number = False
+        self.parked_car_number = 15
 
         self.spawn_points = [(1,430,230),(2,572,230),(3,714,230),(4,856,230),(5,998,230),(6,1140,230),(7,1282,230),(8,1424,230),(9,1566,230),
                              (10,430,780),(11,572,780),(12,714,780),(13,856,780),(14,998,780),(15,1140,780),(16,1282,780),(17,1424,780),(18,1566,780)]

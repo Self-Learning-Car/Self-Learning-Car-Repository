@@ -18,11 +18,10 @@ class Car(arcade.Sprite):
         self.current_speed = 0.0
         self.accelerate= 0.1
         self.friction = 0.05
-        self.angle_speed = 0.5
+        self.angle_speed = 0.1
         self.car_stop = 0.0
         self.break_speed = -1.0
         self.back_accelerate = -0.2
-        self.back_angle_scale = 0.5
 
     def acceleration(self):
         if self.current_speed < self.max_speed:
@@ -55,17 +54,17 @@ class Car(arcade.Sprite):
         if self.current_speed == self.car_stop:
             pass
         elif self.current_speed > self.car_stop:
-            self.change_angle = -self.angle_speed
+            self.change_angle = -self.angle_speed * self.current_speed
         else:
-            self.change_angle = -self.angle_speed * self.back_angle_scale
+            self.change_angle = self.angle_speed * self.current_speed
 
     def left(self):
         if self.current_speed == self.car_stop:
             pass
         elif self.current_speed > self.car_stop:
-            self.change_angle = self.angle_speed
+            self.change_angle = self.angle_speed * self.current_speed
         else:
-            self.change_angle = self.angle_speed * self.back_angle_scale
+            self.change_angle = -self.angle_speed * self.current_speed
 
     def stop_angle(self):
         self.change_angle = 0
