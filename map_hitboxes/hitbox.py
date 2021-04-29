@@ -1,4 +1,4 @@
-class Hitbox:
+class Hitbox():
     """ Generic base hitbox class """
     def __init__(self, center_x, center_y, width, height, color, border_width):
         self.center_x = center_x

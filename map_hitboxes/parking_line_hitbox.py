@@ -1,8 +1,8 @@
 import arcade
-from hitbox import Hitbox
+from map_hitboxes import hitbox
 
 
-class ParkingLineHitbox(Hitbox):
+class ParkingLineHitbox(hitbox.Hitbox):
 
     def draw(self):
         arcade.draw_rectangle_outline(self.center_x,
