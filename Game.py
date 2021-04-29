@@ -133,7 +133,7 @@ class Game(arcade.Window):
             self.car_sprite.left()
         if self.pressed_right == True and self.pressed_left == False:
             self.car_sprite.right()
-        if self.pressed_right == False and self.pressed_left == False:
+        if (self.pressed_right == False and self.pressed_left == False) or self.car_sprite.is_breaking == True:
             self.car_sprite.stop_angle()
 
         self.player_car_list.update()
