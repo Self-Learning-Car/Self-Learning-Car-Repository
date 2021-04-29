@@ -8,6 +8,9 @@ class Game(arcade.Window):
     def __init__(self, width, height, title):
         super().__init__(width, height, title)
 
+        #widok hitboxów
+        self.hitbox_visible = True
+
         # Zmienne mówiące o tym czy dany klawisz jest wciśnięty.
         self.pressed_up = False
         self.pressed_down = False
@@ -95,6 +98,14 @@ class Game(arcade.Window):
         arcade.draw_lrwh_rectangle_textured(0, 0, 1900, 1000, self.background)
         self.player_car_list.draw()
         self.parked_car_list.draw()
+
+
+        #rysuje hitbox pojzadu głównego
+        if self.hitbox_visible == True:
+            self.car_sprite.draw_hit_box(arcade.color.BLUE, 3)
+
+            for car in self.parked_car_list:
+                car.draw_hit_box(arcade.color.RED, 3)
 
         # Call draw() on all your sprite lists below
 

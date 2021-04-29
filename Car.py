@@ -4,7 +4,7 @@ import math
 class Car(arcade.Sprite):
     def __init__(self,image,scale):
 
-        super().__init__(image,scale)
+        super().__init__(image,scale, hit_box_algorithm='Detailed', hit_box_detail=4)
 
         # Maksymalna prędkość pojazdu.
         self.max_speed = 8.0
