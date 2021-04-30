@@ -26,14 +26,12 @@ class Game(arcade.Window):
         self.random_car_number = True
         self.parked_car_number = 15
 
-		# Pozycje zaparkowanych samochodów, pierwsza wartość oznacz miejscie (liczone od lewa do prawa zaczynając od
+        # Pozycje zaparkowanych samochodów, pierwsza wartość oznacz miejscie (liczone od lewa do prawa zaczynając od
         # dołu, druga pozycje x, trzecia pozycje y.
-        self.spawn_points = [(1, 430, 230), (2, 572, 230), (3, 714, 230), (4, 856, 230), (5, 998, 230), (6, 1140, 230),
-                             (7, 1282, 230), (8, 1424, 230), (9, 1566, 230),
-                             (10, 430, 780), (11, 572, 780), (12, 714, 780), (13, 856, 780), (14, 998, 780),
-                             (15, 1140, 780), (16, 1282, 780), (17, 1424, 780), (18, 1566, 780)]
+        self.spawn_points = [(1,430,230),(2,572,230),(3,714,230),(4,856,230),(5,998,230),(6,1140,230),(7,1282,230),
+                             (8,1424,230),(9,1566,230),(10,430,780),(11,572,780),(12,714,780),(13,856,780),(14,998,780),
+                             (15,1140,780),(16,1282,780),(17,1424,780),(18,1566,780)]
 
-        # Car spawn
         arcade.set_background_color(arcade.color.AMAZON)
 
         self.setup()
@@ -47,6 +45,13 @@ class Game(arcade.Window):
 
         self.parked_car_list = None
         self.parked_car_sprite = None
+
+		# Pozycje zaparkowanych samochodów, pierwsza wartość oznacz miejscie (liczone od lewa do prawa zaczynając od
+        # dołu, druga pozycje x, trzecia pozycje y.
+        self.spawn_points = [(1, 430, 230), (2, 572, 230), (3, 714, 230), (4, 856, 230), (5, 998, 230), (6, 1140, 230),
+                             (7, 1282, 230), (8, 1424, 230), (9, 1566, 230),
+                             (10, 430, 780), (11, 572, 780), (12, 714, 780), (13, 856, 780), (14, 998, 780),
+                             (15, 1140, 780), (16, 1282, 780), (17, 1424, 780), (18, 1566, 780)]
 
     def setup(self):
         """ Set up the game variables. Call to re-start the game. """
@@ -71,6 +76,34 @@ class Game(arcade.Window):
             cars_to_spawn = []
             for spawn_point in self.spawn_points:
                 if spawn_point[0] in [3, 9, 11, 16]:
+                    pass
+                else:
+                    cars_to_spawn.append(spawn_point)
+        for spawn_point in cars_to_spawn:
+            number = random.randrange(1, 10)
+            self.parked_car_sprite = Car.Car(f"assets/Car{number}.png", 0.15)
+            self.parked_car_sprite.center_x = spawn_point[1]
+            self.parked_car_sprite.center_y = spawn_point[2]
+            self.parked_car_list.append(self.parked_car_sprite)
+
+        #Car Spawn
+        self.player_car_list.append(self.car_sprite)
+
+    def car_spawn(self):
+        """
+        Funkcja odpowiadająca za utrzworzenie zaparkowanych samochodów, zależna od: "random_car_placement" mówiące czy
+        ustawienie samochodów ma być losowe czy wcześniej z góry ustalone, "random_car_number" mówiąące czy liczba
+        samochodów ma być losowa czy z góry ustalona, "parked_car_number" mówiące ile samochodów ma zostać utworzonych.
+        """
+        if self.random_car_placement:
+            if self.random_car_number:
+                cars_to_spawn = random.sample(self.spawn_points,random.randrange(0,len(self.spawn_points)-1))
+            else:
+                cars_to_spawn = random.sample(self.spawn_points,self.parked_car_number)
+        else:
+            cars_to_spawn = []
+            for spawn_point in self.spawn_points:
+                if spawn_point[0] in [3,9,11,16]:
                     pass
                 else:
                     cars_to_spawn.append(spawn_point)
@@ -120,6 +153,9 @@ class Game(arcade.Window):
                 car.draw_hit_box(arcade.color.RED, 3)
 
         # Call draw() on all your sprite lists below
+
+        map_hitboxes = Hitboxes()
+        map_hitboxes.draw_hitboxes()
 
     def on_update(self, delta_time):
         """
