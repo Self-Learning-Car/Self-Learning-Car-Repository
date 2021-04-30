@@ -12,24 +12,28 @@ class Game(arcade.Window):
     def __init__(self, width, height, title):
         super().__init__(width, height, title)
 
+        #widok hitboxów
+        self.hitbox_visible = True
+
+        # Zmienne mówiące o tym czy dany klawisz jest wciśnięty.
         self.pressed_up = False
         self.pressed_down = False
         self.pressed_right = False
         self.pressed_left = False
 
-        # Car spawn
-
+        # Zmienne dotyczące tworzenia zaparokwanych samochodów.
         self.random_car_placement = True
-        self.random_car_number = False
+        self.random_car_number = True
         self.parked_car_number = 15
 
+		# Pozycje zaparkowanych samochodów, pierwsza wartość oznacz miejscie (liczone od lewa do prawa zaczynając od
+        # dołu, druga pozycje x, trzecia pozycje y.
         self.spawn_points = [(1, 430, 230), (2, 572, 230), (3, 714, 230), (4, 856, 230), (5, 998, 230), (6, 1140, 230),
                              (7, 1282, 230), (8, 1424, 230), (9, 1566, 230),
                              (10, 430, 780), (11, 572, 780), (12, 714, 780), (13, 856, 780), (14, 998, 780),
                              (15, 1140, 780), (16, 1282, 780), (17, 1424, 780), (18, 1566, 780)]
 
         # Car spawn
-
         arcade.set_background_color(arcade.color.AMAZON)
 
         self.setup()
@@ -58,13 +62,11 @@ class Game(arcade.Window):
         self.car_sprite.angle = -90
 
         # Car spawn
-
         if self.random_car_placement:
             if self.random_car_number:
                 cars_to_spawn = random.sample(self.spawn_points, random.randrange(0, len(self.spawn_points) - 1))
             else:
                 cars_to_spawn = random.sample(self.spawn_points, self.parked_car_number)
-
         else:
             cars_to_spawn = []
             for spawn_point in self.spawn_points:
@@ -72,7 +74,6 @@ class Game(arcade.Window):
                     pass
                 else:
                     cars_to_spawn.append(spawn_point)
-
         for spawn_point in cars_to_spawn:
             number = random.randrange(1, 10)
             self.parked_car_sprite = Car.Car(f"assets/Car{number}.png", 0.15)
@@ -80,7 +81,20 @@ class Game(arcade.Window):
             self.parked_car_sprite.center_y = spawn_point[2]
             self.parked_car_list.append(self.parked_car_sprite)
 
-        # Car spawn
+    def setup(self):
+        """ Set up the game variables. Call to re-start the game. """
+        # Create your sprites and sprite lists here
+
+        self.player_car_list = arcade.SpriteList()
+        self.parked_car_list = arcade.SpriteList()
+
+        self.background = arcade.load_texture("assets/Map.png")
+        self.car_sprite = Car.Car("assets/Car.png", 0.15)
+        self.car_sprite.center_x = 100
+        self.car_sprite.center_y = 500
+        self.car_sprite.angle = -90
+
+        self.car_spawn()
 
         self.player_car_list.append(self.car_sprite)
 
@@ -98,9 +112,12 @@ class Game(arcade.Window):
         self.player_car_list.draw()
         self.parked_car_list.draw()
 
-        map_hitboxes = Hitboxes()
-        map_hitboxes.draw_hitboxes()
+        #rysuje hitbox pojzadu głównego
+        if self.hitbox_visible == True:
+            self.car_sprite.draw_hit_box(arcade.color.BLUE, 3)
 
+            for car in self.parked_car_list:
+                car.draw_hit_box(arcade.color.RED, 3)
 
         # Call draw() on all your sprite lists below
 
@@ -110,17 +127,25 @@ class Game(arcade.Window):
         Normally, you'll call update() on the sprite lists that
         need it.
         """
+
+        # Czynności podejmowane w zależności od wciśniętych klawiszy.
         if self.pressed_up == True and self.pressed_down == False:
             self.car_sprite.acceleration()
         if self.pressed_up == False and self.pressed_down == False:
             self.car_sprite.deacceleration()
-        if self.pressed_down == True and self.pressed_up == False:
-            self.car_sprite.car_break_back()
+        if self.pressed_down == True and self.pressed_up == False and \
+                self.car_sprite.current_speed > self.car_sprite.car_stop:
+            self.car_sprite.car_break()
+            self.car_sprite.is_breaking = True
+        if self.pressed_down == False:
+            self.car_sprite.is_breaking = False
+        if self.pressed_down == True and self.car_sprite.is_breaking == False:
+            self.car_sprite.car_back()
         if self.pressed_left == True and self.pressed_right == False:
             self.car_sprite.left()
         if self.pressed_right == True and self.pressed_left == False:
             self.car_sprite.right()
-        if self.pressed_right == False and self.pressed_left == False:
+        if (self.pressed_right == False and self.pressed_left == False) or self.car_sprite.is_breaking == True:
             self.car_sprite.stop_angle()
 
         self.player_car_list.update()
