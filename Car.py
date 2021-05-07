@@ -26,6 +26,8 @@ class Car(arcade.Sprite):
         self.back_accelerate = -0.2
         # Czy pojazd jest w trakcie hamowania (używane w Game przy sterowaniu).
         self.is_breaking = False
+        # Czy pojazd jest zaparkowany
+        self.is_parked = False
 
     def acceleration(self):
         """
