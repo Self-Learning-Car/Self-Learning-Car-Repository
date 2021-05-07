@@ -54,7 +54,7 @@ class Game(arcade.Window):
         self.parking_slot_border_list = None
 
 		# Pozycje zaparkowanych samochodów, pierwsza wartość oznacz miejscie (liczone od lewa do prawa zaczynając od
-        # dołu, druga pozycje x, trzecia pozycje y.
+        # dołu), druga pozycje x, trzecia pozycje y.
         self.spawn_points = [(1, 430, 230), (2, 572, 230), (3, 714, 230), (4, 856, 230), (5, 998, 230), (6, 1140, 230),
                              (7, 1282, 230), (8, 1424, 230), (9, 1566, 230),
                              (10, 430, 780), (11, 572, 780), (12, 714, 780), (13, 856, 780), (14, 998, 780),

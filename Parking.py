@@ -26,7 +26,7 @@ class Parking:
                                       (930, 230),(1075, 230),(1215, 230),(1355, 230),(1500, 230),(1645, 230)]
         # pozycje obszarów niedozwolonych (poza granicami parkingu) oraz ich rozmiary
         self.parking_block_position = [(0, 1000, 400, 650),(1010, 1000, 1620, 250),(1860, 500, 80, 1000),
-                                       (1010, 70, 1620, 140),(0, 50, 400, 500)]
+                                       (1010, 70, 1620, 140),(0, 50, 400, 500),(0,500,1,2000)]
 
 
     def add_parking_block(self,list):
