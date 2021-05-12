@@ -17,7 +17,7 @@ class Car(arcade.Sprite):
         # Wartość spowolnienia.
         self.deaccelerate = 0.05
         # Szybkość obracania.
-        self.angle_speed = 0.1
+        self.angle_speed = 0.3
         # Wartość przy ktorej samochód się nie porusza.
         self.car_stop = 0.0
         # Szybkość hamowania.

@@ -166,6 +166,12 @@ class Game(arcade.Window):
         if arcade.check_for_collision_with_list(car,self.parking_line_list) or arcade.check_for_collision_with_list(car,self.parking_slot_border_list):
             car.is_parked = False
 
+    def collision_method(self, car):
+
+        if arcade.check_for_collision_with_list(car,self.parking_block_list) or arcade.check_for_collision_with_list(car, self.parked_car_list):
+            self.setup()
+            return True
+
     def on_update(self, delta_time):
         """
         All the logic to move, and the game logic goes here.
@@ -197,7 +203,8 @@ class Game(arcade.Window):
 
         self.parking_method(self.car_sprite)
 
-
+        if (self.collision_method(self.car_sprite)):
+            print("Działa")
 
 
 
