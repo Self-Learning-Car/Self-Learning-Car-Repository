@@ -1,7 +1,7 @@
 import arcade
 import Car
 import Parking
-from map_hitboxes.hitboxes import Hitboxes
+
 
 import random
 
@@ -11,6 +11,9 @@ class Game(arcade.Window):
 
     def __init__(self, width, height, title):
         super().__init__(width, height, title)
+
+        self.parking = Parking.Parking()
+
 
         #widok hitboxów
         self.hitbox_visible = True
@@ -45,49 +48,17 @@ class Game(arcade.Window):
 
         self.parked_car_list = None
         self.parked_car_sprite = None
+        self.parking_slot_list = None
+        self.parking_line_list = None
+        self.parking_block_list = None
+        self.parking_slot_border_list = None
 
 		# Pozycje zaparkowanych samochodów, pierwsza wartość oznacz miejscie (liczone od lewa do prawa zaczynając od
-        # dołu, druga pozycje x, trzecia pozycje y.
+        # dołu), druga pozycje x, trzecia pozycje y.
         self.spawn_points = [(1, 430, 230), (2, 572, 230), (3, 714, 230), (4, 856, 230), (5, 998, 230), (6, 1140, 230),
                              (7, 1282, 230), (8, 1424, 230), (9, 1566, 230),
                              (10, 430, 780), (11, 572, 780), (12, 714, 780), (13, 856, 780), (14, 998, 780),
                              (15, 1140, 780), (16, 1282, 780), (17, 1424, 780), (18, 1566, 780)]
-
-    def setup(self):
-        """ Set up the game variables. Call to re-start the game. """
-        # Create your sprites and sprite lists here
-
-        self.player_car_list = arcade.SpriteList()
-        self.parked_car_list = arcade.SpriteList()
-
-        self.background = arcade.load_texture("assets/Map.png")
-        self.car_sprite = Car.Car("assets/Car.png", 0.15)
-        self.car_sprite.center_x = 100
-        self.car_sprite.center_y = 500
-        self.car_sprite.angle = -90
-
-        # Car spawn
-        if self.random_car_placement:
-            if self.random_car_number:
-                cars_to_spawn = random.sample(self.spawn_points, random.randrange(0, len(self.spawn_points) - 1))
-            else:
-                cars_to_spawn = random.sample(self.spawn_points, self.parked_car_number)
-        else:
-            cars_to_spawn = []
-            for spawn_point in self.spawn_points:
-                if spawn_point[0] in [3, 9, 11, 16]:
-                    pass
-                else:
-                    cars_to_spawn.append(spawn_point)
-        for spawn_point in cars_to_spawn:
-            number = random.randrange(1, 10)
-            self.parked_car_sprite = Car.Car(f"assets/Car{number}.png", 0.15)
-            self.parked_car_sprite.center_x = spawn_point[1]
-            self.parked_car_sprite.center_y = spawn_point[2]
-            self.parked_car_list.append(self.parked_car_sprite)
-
-        #Car Spawn
-        self.player_car_list.append(self.car_sprite)
 
     def car_spawn(self):
         """
@@ -120,16 +91,28 @@ class Game(arcade.Window):
 
         self.player_car_list = arcade.SpriteList()
         self.parked_car_list = arcade.SpriteList()
+        self.parking_slot_list = arcade.SpriteList()
+        self.parking_line_list = arcade.SpriteList()
+        self.parking_block_list = arcade.SpriteList()
+        self.parking_slot_border_list = arcade.SpriteList()
+
+
+
 
         self.background = arcade.load_texture("assets/Map.png")
         self.car_sprite = Car.Car("assets/Car.png", 0.15)
         self.car_sprite.center_x = 100
         self.car_sprite.center_y = 500
-        self.car_sprite.angle = -90
+
 
         self.car_spawn()
 
         self.player_car_list.append(self.car_sprite)
+
+        self.parking.add_parking_lane(self.parking_line_list)
+        self.parking.add_parking_slot(self.parking_slot_list)
+        self.parking.add_parking_block(self.parking_block_list)
+        self.parking.add_slot_border(self.parking_slot_border_list)
 
     def on_draw(self):
         """
@@ -144,6 +127,10 @@ class Game(arcade.Window):
         arcade.draw_lrwh_rectangle_textured(0, 0, 1900, 1000, self.background)
         self.player_car_list.draw()
         self.parked_car_list.draw()
+        self.parking_line_list.draw()
+        self.parking_slot_list.draw()
+        self.parking_block_list.draw()
+        self.parking_slot_border_list.draw()
 
         #rysuje hitbox pojzadu głównego
         if self.hitbox_visible == True:
@@ -152,10 +139,32 @@ class Game(arcade.Window):
             for car in self.parked_car_list:
                 car.draw_hit_box(arcade.color.RED, 3)
 
+            for slot in self.parking_slot_list:
+                slot.draw_hit_box(arcade.color.GREEN,3)
+
+            for line in self.parking_line_list:
+                line.draw_hit_box(arcade.color.YELLOW,3)
+
+            for block in self.parking_block_list:
+                block.draw_hit_box(arcade.color.RED,3)
+
+            for border in self.parking_slot_border_list:
+                border.draw_hit_box(arcade.color.YELLOW,1)
+
+
         # Call draw() on all your sprite lists below
 
-        map_hitboxes = Hitboxes()
-        map_hitboxes.draw_hitboxes()
+
+    def parking_method(self,car):
+        """
+        Metoda sprawdzająca czy samochód podany jako argument car jest poprawnie zaparkowany.
+        """
+        if arcade.check_for_collision_with_list(car,self.parking_slot_list) and not arcade.check_for_collision_with_list(car,self.parking_line_list) and not arcade.check_for_collision_with_list(car,self.parking_slot_border_list) and not car.is_parked:
+            car.is_parked = True
+            print("Parked succesfully")
+
+        if arcade.check_for_collision_with_list(car,self.parking_line_list) or arcade.check_for_collision_with_list(car,self.parking_slot_border_list):
+            car.is_parked = False
 
     def on_update(self, delta_time):
         """
@@ -184,9 +193,14 @@ class Game(arcade.Window):
         if (self.pressed_right == False and self.pressed_left == False) or self.car_sprite.is_breaking == True:
             self.car_sprite.stop_angle()
 
-
-
         self.player_car_list.update()
+
+        self.parking_method(self.car_sprite)
+
+
+
+
+
 
     def on_key_press(self, key, key_modifiers):
         if key == arcade.key.UP:
