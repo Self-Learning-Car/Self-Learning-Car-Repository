@@ -68,7 +68,7 @@ class Game(arcade.Window):
         """
         if self.random_car_placement:
             if self.random_car_number:
-                cars_to_spawn = random.sample(self.spawn_points,random.randrange(0,len(self.spawn_points)-1))
+                cars_to_spawn = random.sample(self.spawn_points,random.randrange(1,len(self.spawn_points)-1))
             else:
                 cars_to_spawn = random.sample(self.spawn_points,self.parked_car_number)
         else:
@@ -103,6 +103,7 @@ class Game(arcade.Window):
         self.car_sprite = Car.Car("assets/Car.png", 0.15)
         self.car_sprite.center_x = 100
         self.car_sprite.center_y = 500
+        self.car_sprite.update_wheels()
 
 
         self.car_spawn()

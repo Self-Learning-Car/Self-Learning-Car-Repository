@@ -2,10 +2,11 @@ import arcade
 import math
 import numpy
 
-class Car(arcade.Sprite):
-    def __init__(self,image,scale):
 
-        super().__init__(image,scale, hit_box_algorithm='Detailed', hit_box_detail=4)
+class Car(arcade.Sprite):
+    def __init__(self, image, scale):
+
+        super().__init__(image, scale, hit_box_algorithm='Detailed', hit_box_detail=4)
 
         # Maksymalna prędkość pojazdu.
         self.max_speed = 8.0
@@ -14,11 +15,9 @@ class Car(arcade.Sprite):
         # Obecna prędkość pojazdu.
         self.current_speed = 0.0
         # Wartość przyśpieszenia.
-        self.accelerate= 0.1
+        self.accelerate = 0.1
         # Wartość spowolnienia.
         self.deaccelerate = 0.05
-        # Szybkość obracania.
-        self.angle_speed = 0.1
         # Wartość przy ktorej samochód się nie porusza.
         self.car_stop = 0.0
         # Szybkość hamowania.
@@ -27,18 +26,31 @@ class Car(arcade.Sprite):
         self.back_accelerate = -0.2
         # Czy pojazd jest w trakcie hamowania (używane w Game przy sterowaniu).
         self.is_breaking = False
-        # Czy pojazd jest zaparkowany
+        # Czy pojazd jest zaparkowany.
         self.is_parked = False
-
-        self.heading = self.angle
-        self.car_position = numpy.array([100,500])
-        self.wheel_base = self.width-20
-        self.front_wheel = numpy.array([None,None])
-        self.back_wheel = numpy.array([None,None])
+        # Kierunek w który jest odwrócony samochód (użyte przy symulacji kół, wartości ustalane w metodzie
+        # update_wheels()).
+        self.heading = None
+        # Pozycja samochodu jako wektor numpy (użyte przy symulacji kół, wartości ustalane w metodzie uptade_wheels()).
+        self.car_position = numpy.array([None, None])
+        # Odleglosc między kołami.
+        self.wheel_base = self.width - 20
+        # Pozyjca przednich koł jako wektor (wartości ustalone są w metodzie update()).
+        self.front_wheel = numpy.array([None, None])
+        # Pozycja tylnych kół jako wektor (wartości ustalone są w metodzie update()).
+        self.back_wheel = numpy.array([None, None])
+        # Kąt obrócenia przednich kół.
         self.steer_angle = 0
+        # Liczba o jaką mogą obrócić się koła.
+        self.steer_angle_range = 15
 
-
-
+    def update_wheels(self):
+        """
+        Metoda służąca do zaktualizowania wektoru pozycji oraz kierunku samochodu
+        """
+        self.car_position[0] = self.center_x
+        self.car_position[1] = self.center_y
+        self.heading = self.angle
 
     def acceleration(self):
         """
@@ -85,24 +97,21 @@ class Car(arcade.Sprite):
         else:
             self.current_speed = self.min_speed
 
-
     def right(self):
         """
-        Metoda odpowiedzialna za skręt w prawo.
+        Metoda odpowiedzialna za skręt kół w prawo.
         """
-        if self.current_speed != 0:
-            self.steer_angle = -15
+        self.steer_angle = -self.steer_angle_range
 
     def left(self):
         """
-        Metoda odpowiedzialna za skręt w lewo.
+        Metoda odpowiedzialna za skręt kół w lewo.
         """
-        if self.current_speed != 0:
-            self.steer_angle = 15
+        self.steer_angle = self.steer_angle_range
 
     def stop_angle(self):
         """
-        Metoda odpowiedzialna za zatzymanie skręcania się pojazdu.
+        Metoda odpowiedzialna za zatrzymanie skręcania kół.
         """
         self.steer_angle = 0
 
@@ -111,20 +120,18 @@ class Car(arcade.Sprite):
         Metoda odpowiedzialna za zmianę pozycji pojazdu.
         """
         if self.current_speed != 0:
-
-
-
-            self.front_wheel = self.car_position + self.wheel_base/2 * numpy.array([math.cos(math.radians(self.heading)),math.sin(math.radians(self.heading))])
-            self.back_wheel = self.car_position - self.wheel_base/2* numpy.array([math.cos(math.radians(self.heading)),math.sin(math.radians(self.heading))])
-
-            self.back_wheel += self.current_speed * numpy.array([math.cos(math.radians(self.heading)),math.sin(math.radians(self.heading))])
-            self.front_wheel += self.current_speed * numpy.array([math.cos(math.radians(self.heading+self.steer_angle)),math.sin(math.radians(self.heading+self.steer_angle))])
-
-            self.car_position = (self.front_wheel + self.back_wheel)/2
-            self.heading = math.degrees(math.atan2(self.front_wheel[1]-self.back_wheel[1],self.front_wheel[0]-self.back_wheel[0]))
-
+            self.front_wheel = self.car_position + self.wheel_base / 2 * \
+                               numpy.array([math.cos(math.radians(self.heading)), math.sin(math.radians(self.heading))])
+            self.back_wheel = self.car_position - self.wheel_base / 2 * \
+                              numpy.array([math.cos(math.radians(self.heading)), math.sin(math.radians(self.heading))])
+            self.back_wheel += self.current_speed * \
+                               numpy.array([math.cos(math.radians(self.heading)), math.sin(math.radians(self.heading))])
+            self.front_wheel += self.current_speed * numpy.array(
+                [math.cos(math.radians(self.heading + self.steer_angle)),
+                 math.sin(math.radians(self.heading + self.steer_angle))])
+            self.car_position = (self.front_wheel + self.back_wheel) / 2
+            self.heading = math.degrees(
+                math.atan2(self.front_wheel[1] - self.back_wheel[1], self.front_wheel[0] - self.back_wheel[0]))
             self.center_x = self.car_position[0]
             self.center_y = self.car_position[1]
-
             self.angle = self.heading
-
