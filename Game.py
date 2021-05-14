@@ -103,7 +103,7 @@ class Game(arcade.Window):
         self.car_sprite = Car.Car("assets/Car.png", 0.15)
         self.car_sprite.center_x = 100
         self.car_sprite.center_y = 500
-        self.car_sprite.angle = -90
+
 
         self.car_spawn()
 
