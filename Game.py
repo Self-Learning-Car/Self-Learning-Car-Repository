@@ -1,6 +1,7 @@
 import arcade
 import Car
 import Parking
+import Sensors
 
 
 import random
@@ -16,7 +17,7 @@ class Game(arcade.Window):
 
 
         #widok hitboxów
-        self.hitbox_visible = True
+        self.hitbox_visible = False
 
         # Zmienne mówiące o tym czy dany klawisz jest wciśnięty.
         self.pressed_up = False
@@ -25,8 +26,8 @@ class Game(arcade.Window):
         self.pressed_left = False
 
         # Zmienne dotyczące tworzenia zaparokwanych samochodów.
-        self.random_car_placement = True
-        self.random_car_number = True
+        self.random_car_placement = False
+        self.random_car_number = False
         self.parked_car_number = 15
 
         # Pozycje zaparkowanych samochodów, pierwsza wartość oznacz miejscie (liczone od lewa do prawa zaczynając od
@@ -45,6 +46,7 @@ class Game(arcade.Window):
 
         self.player_car_list = None
         self.car_sprite = None
+        self.car_sensors_list = None
 
         self.parked_car_list = None
         self.parked_car_sprite = None
@@ -84,6 +86,7 @@ class Game(arcade.Window):
             self.parked_car_sprite.center_x = spawn_point[1]
             self.parked_car_sprite.center_y = spawn_point[2]
             self.parked_car_list.append(self.parked_car_sprite)
+            self.car_sprite.draw_hit_box
 
     def setup(self):
         """ Set up the game variables. Call to re-start the game. """
@@ -104,7 +107,7 @@ class Game(arcade.Window):
         self.car_sprite.center_x = 100
         self.car_sprite.center_y = 500
 
-
+        #spawn zaparkowanych samochodów
         self.car_spawn()
 
         self.player_car_list.append(self.car_sprite)
@@ -125,12 +128,16 @@ class Game(arcade.Window):
         arcade.start_render()
 
         arcade.draw_lrwh_rectangle_textured(0, 0, 1900, 1000, self.background)
+
         self.player_car_list.draw()
         self.parked_car_list.draw()
         self.parking_line_list.draw()
         self.parking_slot_list.draw()
         self.parking_block_list.draw()
         self.parking_slot_border_list.draw()
+
+        #rysowanie sensorów
+        self.sensors = Sensors.Sensors(self.car_sprite, self.parked_car_list)
 
         #rysuje hitbox pojzadu głównego
         if self.hitbox_visible == True:
