@@ -42,7 +42,7 @@ class Parking:
             parking_block.height = position[3]
             list.append(parking_block)
 
-    def add_parking_slot(self,list):
+    def add_parking_slot(self, list):
         """
         Metoda tworząca miejsca parkingowe jako Sprite'y i dodająca je do listy podanej jako argument.
         """
@@ -53,6 +53,14 @@ class Parking:
             parking_slot.width = self.parking_slot_width
             parking_slot.height = self.parking_slot_height
             list.append(parking_slot)
+
+    def add_parking_slot_ai(self, list):
+        parking_slot = Parking_slot("assets/Empty.png")
+        parking_slot.center_x = self.parking_slot_position[11][0]
+        parking_slot.center_y = self.parking_slot_position[11][1]
+        parking_slot.width = self.parking_slot_width
+        parking_slot.height = self.parking_slot_height
+        list.append(parking_slot)
 
 
     def add_parking_lane(self,list):

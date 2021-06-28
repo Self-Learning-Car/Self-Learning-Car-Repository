@@ -17,7 +17,7 @@ class Game(arcade.Window):
 
 
         #widok hitboxów
-        self.hitbox_visible = False
+        self.hitbox_visible = True
 
         self.action = None
         # Zmienne mówiące o tym czy dany klawisz jest wciśnięty.
@@ -103,6 +103,7 @@ class Game(arcade.Window):
 
 
 
+
         self.background = arcade.load_texture("assets/Map.png")
         self.car_sprite = Car.Car("assets/Car.png", 0.15)
         self.car_sprite.center_x = 100
@@ -114,7 +115,7 @@ class Game(arcade.Window):
         self.player_car_list.append(self.car_sprite)
 
         self.parking.add_parking_lane(self.parking_line_list)
-        self.parking.add_parking_slot(self.parking_slot_list)
+        self.parking.add_parking_slot_ai(self.parking_slot_list)
         self.parking.add_parking_block(self.parking_block_list)
         self.parking.add_slot_border(self.parking_slot_border_list)
 
@@ -159,24 +160,24 @@ class Game(arcade.Window):
             for border in self.parking_slot_border_list:
                 border.draw_hit_box(arcade.color.YELLOW,1)
 
-
         # Call draw() on all your sprite lists below
 
 
-    def parking_method(self,car):
+    def parking_method(self, car):
         """
         Metoda sprawdzająca czy samochód podany jako argument car jest poprawnie zaparkowany.
         """
-        if arcade.check_for_collision_with_list(car,self.parking_slot_list) and not arcade.check_for_collision_with_list(car,self.parking_line_list) and not arcade.check_for_collision_with_list(car,self.parking_slot_border_list) and not car.is_parked:
+        if arcade.check_for_collision_with_list(car, self.parking_slot_list) and not arcade.check_for_collision_with_list(car, self.parking_line_list) and not arcade.check_for_collision_with_list(car, self.parking_slot_border_list) and not car.is_parked:
             car.is_parked = True
             print("Parked succesfully")
+            self.setup()
 
-        if arcade.check_for_collision_with_list(car,self.parking_line_list) or arcade.check_for_collision_with_list(car,self.parking_slot_border_list):
+        if arcade.check_for_collision_with_list(car, self.parking_line_list) or arcade.check_for_collision_with_list(car, self.parking_slot_border_list):
             car.is_parked = False
 
     def collision_method(self, car):
 
-        if arcade.check_for_collision_with_list(car,self.parking_block_list) or arcade.check_for_collision_with_list(car, self.parked_car_list):
+        if arcade.check_for_collision_with_list(car, self.parking_block_list) or arcade.check_for_collision_with_list(car, self.parked_car_list):
             self.setup()
             return True
 
@@ -186,7 +187,7 @@ class Game(arcade.Window):
         Normally, you'll call update() on the sprite lists that
         need it.
         """
-        self.action = random.randrange(1, 6)
+        self.action = random.randrange(1, 7)
         self.control_ai(self.action)
 
         # Czynności podejmowane w zależności od wciśniętych klawiszy.
@@ -216,6 +217,12 @@ class Game(arcade.Window):
         if (self.collision_method(self.car_sprite)):
             print("Działa")
 
+        #anulowanie randomowego wcisniecia klawisza przez ai
+        self.pressed_up = False
+        self.pressed_down = False
+        self.pressed_left = False
+        self.pressed_right = False
+
 
 
     #sterowanie pojazdem
@@ -244,40 +251,24 @@ class Game(arcade.Window):
         if action == 1:
             self.pressed_up = True
             print('1')
-        else:
-            self.pressed_up = False
         if action == 2:
             self.pressed_down = True
             print('2')
-        else:
-            self.pressed_down = False
         if action == 3:
             self.pressed_up = True
             self.pressed_right = True
             print('3')
-        else:
-            self.pressed_up = False
-            self.pressed_right = False
         if action == 4:
             self.pressed_up = True
             self.pressed_left = True
             print('4')
-        else:
-            self.pressed_up = False
-            self.pressed_left = False
         if action == 5:
             self.pressed_down = True
             self.pressed_right = True
             print('5')
-        else:
-            self.pressed_down = False
-            self.pressed_right = False
         if action == 6:
             self.pressed_down = True
             self.pressed_left = True
             print('6')
-        else:
-            self.pressed_down = False
-            self.pressed_left = False
 
 

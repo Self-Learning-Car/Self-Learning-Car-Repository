@@ -10,28 +10,28 @@ class Car(arcade.Sprite):
         # Maksymalna prędkość pojazdu.
         self.max_speed = 8.0
         # Maksymalna prędkość cofania się.
-        self.min_speed = -2.0
+        self.min_speed = -5.0
         # Obecna prędkość pojazdu.
         self.current_speed = 0.0
         # Wartość przyśpieszenia.
-        self.accelerate= 0.1
+        self.accelerate= 0.3
         # Wartość spowolnienia.
-        self.deaccelerate = 0.05
+        self.deaccelerate = 0.3
         # Szybkość obracania.
-        self.angle_speed = 0.3
+        self.angle_speed = 30
         # Wartość przy ktorej samochód się nie porusza.
         self.car_stop = 0.0
         # Szybkość hamowania.
         self.break_speed = -0.5
         # Przyśpieszenie cofania.
-        self.back_accelerate = -0.2
+        self.back_accelerate = -0.8
         # Czy pojazd jest w trakcie hamowania (używane w Game przy sterowaniu).
         self.is_breaking = False
         # Czy pojazd jest zaparkowany
         self.is_parked = False
 
         self.heading = self.angle
-        self.car_position = numpy.array([100,500])
+        self.car_position = numpy.array([100, 500])
         self.wheel_base = self.width-20
         self.front_wheel = numpy.array([None,None])
         self.back_wheel = numpy.array([None,None])
@@ -91,14 +91,14 @@ class Car(arcade.Sprite):
         Metoda odpowiedzialna za skręt w prawo.
         """
         if self.current_speed != 0:
-            self.steer_angle = -15
+            self.steer_angle = -self.angle_speed
 
     def left(self):
         """
         Metoda odpowiedzialna za skręt w lewo.
         """
         if self.current_speed != 0:
-            self.steer_angle = 15
+            self.steer_angle = self.angle_speed
 
     def stop_angle(self):
         """
