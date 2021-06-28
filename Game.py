@@ -19,6 +19,7 @@ class Game(arcade.Window):
         #widok hitboxów
         self.hitbox_visible = False
 
+        self.action = None
         # Zmienne mówiące o tym czy dany klawisz jest wciśnięty.
         self.pressed_up = False
         self.pressed_down = False
@@ -185,6 +186,8 @@ class Game(arcade.Window):
         Normally, you'll call update() on the sprite lists that
         need it.
         """
+        self.action = random.randrange(1, 6)
+        self.control_ai(self.action)
 
         # Czynności podejmowane w zależności od wciśniętych klawiszy.
         if self.pressed_up == True and self.pressed_down == False:
@@ -215,7 +218,7 @@ class Game(arcade.Window):
 
 
 
-
+    #sterowanie pojazdem
     def on_key_press(self, key, key_modifiers):
         if key == arcade.key.UP:
             self.pressed_up = True
@@ -235,3 +238,46 @@ class Game(arcade.Window):
             self.pressed_right = False
         if key == arcade.key.LEFT:
             self.pressed_left = False
+
+    #sterowanie AI
+    def control_ai(self, action):
+        if action == 1:
+            self.pressed_up = True
+            print('1')
+        else:
+            self.pressed_up = False
+        if action == 2:
+            self.pressed_down = True
+            print('2')
+        else:
+            self.pressed_down = False
+        if action == 3:
+            self.pressed_up = True
+            self.pressed_right = True
+            print('3')
+        else:
+            self.pressed_up = False
+            self.pressed_right = False
+        if action == 4:
+            self.pressed_up = True
+            self.pressed_left = True
+            print('4')
+        else:
+            self.pressed_up = False
+            self.pressed_left = False
+        if action == 5:
+            self.pressed_down = True
+            self.pressed_right = True
+            print('5')
+        else:
+            self.pressed_down = False
+            self.pressed_right = False
+        if action == 6:
+            self.pressed_down = True
+            self.pressed_left = True
+            print('6')
+        else:
+            self.pressed_down = False
+            self.pressed_left = False
+
+
