@@ -8,7 +8,15 @@ from shapely.geometry import Polygon, LineString
 import random
 
 class Sensors():
-    def __init__(self, car, parked_car_list):
+    def __init__(self, car, parked_car_list, parking_block_list):
+
+        self.object_list = []
+
+        for x in parked_car_list:
+            self.object_list.append(x)
+
+        for x in parking_block_list:
+            self.object_list.append(x)
 
         self.lenghts = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 
@@ -80,7 +88,7 @@ class Sensors():
             #pojedyncza linia wyznaczona z punktu początkowego i końcowego
             self.l = LineString([[car.center_x, car.center_y], [endline[0], endline[1]]])
             #sprawdzanie czy linia przecina poligon
-            for kek in parked_car_list:
+            for kek in self.object_list:
                 self.p = Polygon(kek.get_adjusted_hit_box())
                 self.intersect = self.l.intersection(self.p).representative_point()
                 list(self.intersect.coords)

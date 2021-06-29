@@ -139,7 +139,7 @@ class Game(arcade.Window):
         self.parking_slot_border_list.draw()
 
         #rysowanie sensorów
-        self.sensors = Sensors.Sensors(self.car_sprite, self.parked_car_list)
+        self.sensors = Sensors.Sensors(self.car_sprite, self.parked_car_list, self.parking_block_list)
 
         #rysuje hitbox pojzadu głównego
         if self.hitbox_visible == True:
@@ -188,7 +188,7 @@ class Game(arcade.Window):
         need it.
         """
         self.action = random.randrange(1, 7)
-        self.control_ai(self.action)
+        #self.control_ai(self.action)
 
         # Czynności podejmowane w zależności od wciśniętych klawiszy.
         if self.pressed_up == True and self.pressed_down == False:
@@ -218,10 +218,10 @@ class Game(arcade.Window):
             print("Działa")
 
         #anulowanie randomowego wcisniecia klawisza przez ai
-        self.pressed_up = False
-        self.pressed_down = False
-        self.pressed_left = False
-        self.pressed_right = False
+        #self.pressed_up = False
+        #self.pressed_down = False
+        #self.pressed_left = False
+        #self.pressed_right = False
 
 
 
