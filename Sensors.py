@@ -18,7 +18,8 @@ class Sensors():
         for x in parking_block_list:
             self.object_list.append(x)
 
-        self.lenghts = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        #TABLICA DO PRZEKAZANIA DLA AI
+        self.lenghts = [200, 200, 200, 200, 200, 200, 200, 200, 200, 200]
 
         lenght = 200
         #lenght_front = 200
@@ -84,7 +85,7 @@ class Sensors():
                              x[0], x[1],
                              arcade.color.RED, 2)
 
-        for endline in sensor:
+        for n, endline in enumerate(sensor):
             #pojedyncza linia wyznaczona z punktu początkowego i końcowego
             self.l = LineString([[car.center_x, car.center_y], [endline[0], endline[1]]])
             #sprawdzanie czy linia przecina poligon
@@ -95,4 +96,12 @@ class Sensors():
 
                 if self.intersect:
                     arcade.draw_circle_filled(self.intersect.x, self.intersect.y, 5, arcade.color.GREEN)
+
+                    car_center = [car.center_x, car.center_y]
+                    center = [self.intersect.x, self.intersect.y]
+
+                    self.lenghts[n] = math.dist(car_center, center)
+
+        #print(self.lenghts)
+
         pass
