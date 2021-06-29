@@ -1,22 +1,25 @@
+import gym
 import arcade
 import Car
 import Parking
 import Sensors
 
 
-import random
 
+class GameEnv(gym.Env):
+    def __init__(self,env_config={}):
 
+        
 
-class Game(arcade.Window):
+        self.screen_width = 1900
+        self.screen_height = 1000
+        self.screen_title = "Self Learning Car"
 
-    def __init__(self, width, height, title):
-        super().__init__(width, height, title)
+       # self.window = None
 
         self.parking = Parking.Parking()
 
-
-        #widok hitboxów
+        # widok hitboxów
         self.hitbox_visible = True
 
         self.action = None
@@ -26,21 +29,13 @@ class Game(arcade.Window):
         self.pressed_right = False
         self.pressed_left = False
 
-        # Zmienne dotyczące tworzenia zaparokwanych samochodów.
-        self.random_car_placement = False
-        self.random_car_number = False
-        self.parked_car_number = 15
-
         # Pozycje zaparkowanych samochodów, pierwsza wartość oznacz miejscie (liczone od lewa do prawa zaczynając od
         # dołu, druga pozycje x, trzecia pozycje y.
-        self.spawn_points = [(1,430,230),(2,572,230),(3,714,230),(4,856,230),(5,998,230),(6,1140,230),(7,1282,230),
-                             (8,1424,230),(9,1566,230),(10,430,780),(11,572,780),(12,714,780),(13,856,780),(14,998,780),
-                             (15,1140,780),(16,1282,780),(17,1424,780),(18,1566,780)]
-
-        arcade.set_background_color(arcade.color.AMAZON)
-
-        self.setup()
-        arcade.run()
+        self.spawn_points = [(1, 430, 230), (2, 572, 230), (3, 714, 230), (4, 856, 230), (5, 998, 230), (6, 1140, 230),
+                             (7, 1282, 230),
+                             (8, 1424, 230), (9, 1566, 230), (10, 430, 780), (11, 572, 780), (12, 714, 780),
+                             (13, 856, 780), (14, 998, 780),
+                             (15, 1140, 780), (16, 1282, 780), (17, 1424, 780), (18, 1566, 780)]
 
         # If you have sprite lists, you should create them here,
         # and set them to None
@@ -56,32 +51,34 @@ class Game(arcade.Window):
         self.parking_block_list = None
         self.parking_slot_border_list = None
 
-		# Pozycje zaparkowanych samochodów, pierwsza wartość oznacz miejscie (liczone od lewa do prawa zaczynając od
+        # Pozycje zaparkowanych samochodów, pierwsza wartość oznacz miejscie (liczone od lewa do prawa zaczynając od
         # dołu), druga pozycje x, trzecia pozycje y.
         self.spawn_points = [(1, 430, 230), (2, 572, 230), (3, 714, 230), (4, 856, 230), (5, 998, 230), (6, 1140, 230),
                              (7, 1282, 230), (8, 1424, 230), (9, 1566, 230),
                              (10, 430, 780), (11, 572, 780), (12, 714, 780), (13, 856, 780), (14, 998, 780),
                              (15, 1140, 780), (16, 1282, 780), (17, 1424, 780), (18, 1566, 780)]
 
+        self.done = False
+
+        self.window = arcade.Window(self.screen_width, self.screen_height, self.screen_title)
+
+        self.setup()
+        self.arcade.run()
+        self.on_draw()
+
+
+
+
+
     def car_spawn(self):
-        """
-        Funkcja odpowiadająca za utrzworzenie zaparkowanych samochodów, zależna od: "random_car_placement" mówiące czy
-        ustawienie samochodów ma być losowe czy wcześniej z góry ustalone, "random_car_number" mówiąące czy liczba
-        samochodów ma być losowa czy z góry ustalona, "parked_car_number" mówiące ile samochodów ma zostać utworzonych.
-        """
-        if self.random_car_placement:
-            if self.random_car_number:
-                cars_to_spawn = random.sample(self.spawn_points,random.randrange(0,len(self.spawn_points)-1))
+        # Tworzenie zaprarkowanych pojazdow
+        number = 0
+        cars_to_spawn = []
+        for spawn_point in self.spawn_points:
+            if spawn_point[0] in [3]:
+                pass
             else:
-                cars_to_spawn = random.sample(self.spawn_points,self.parked_car_number)
-        else:
-            number = 0
-            cars_to_spawn = []
-            for spawn_point in self.spawn_points:
-                if spawn_point[0] in [3]:
-                    pass
-                else:
-                    cars_to_spawn.append(spawn_point)
+                cars_to_spawn.append(spawn_point)
         for spawn_point in cars_to_spawn:
             if number < 10:
                 pass
@@ -94,6 +91,22 @@ class Game(arcade.Window):
             self.parked_car_list.append(self.parked_car_sprite)
             self.car_sprite.draw_hit_box
 
+    def parking_method(self, car):
+        """
+        Metoda sprawdzająca czy samochód podany jako argument car jest poprawnie zaparkowany.
+        """
+        if arcade.check_for_collision_with_list(car, self.parking_slot_list) and not arcade.check_for_collision_with_list( car, self.parking_line_list) and not arcade.check_for_collision_with_list(car,self.parking_slot_border_list) and not car.is_parked:
+            self.done = True
+            print("Parked succesfully")
+
+        if arcade.check_for_collision_with_list(car, self.parking_line_list) or arcade.check_for_collision_with_list(car, self.parking_slot_border_list):
+            self.done = False
+
+    def collision_method(self, car):
+
+        if arcade.check_for_collision_with_list(car, self.parking_block_list) or arcade.check_for_collision_with_list(car, self.parked_car_list):
+            self.done = True
+
     def setup(self):
         """ Set up the game variables. Call to re-start the game. """
         # Create your sprites and sprite lists here
@@ -105,16 +118,12 @@ class Game(arcade.Window):
         self.parking_block_list = arcade.SpriteList()
         self.parking_slot_border_list = arcade.SpriteList()
 
-
-
-
-
         self.background = arcade.load_texture("assets/Map.png")
         self.car_sprite = Car.Car("assets/Car.png", 0.15)
         self.car_sprite.center_x = 100
         self.car_sprite.center_y = 500
 
-        #spawn zaparkowanych samochodów
+        # spawn zaparkowanych samochodów
         self.car_spawn()
 
         self.player_car_list.append(self.car_sprite)
@@ -132,7 +141,7 @@ class Game(arcade.Window):
         # This command should happen before we start drawing. It will clear
         # the screen to the background color, and erase what we drew last frame.
 
-        arcade.start_render()
+
 
         arcade.draw_lrwh_rectangle_textured(0, 0, 1900, 1000, self.background)
 
@@ -164,40 +173,32 @@ class Game(arcade.Window):
 
             for border in self.parking_slot_border_list:
                 border.draw_hit_box(arcade.color.YELLOW,1)
+        arcade.start_render()
 
-        # Call draw() on all your sprite lists below
+    def on_update(self,delta_time):
+        self.player_car_list.update()
 
+    def init_render(self):
+        self.window = arcade.Window(self.screen_width,self.screen_height,self.screen_title)
 
-    def parking_method(self, car):
-        """
-        Metoda sprawdzająca czy samochód podany jako argument car jest poprawnie zaparkowany.
-        """
-        if arcade.check_for_collision_with_list(car, self.parking_slot_list) and not arcade.check_for_collision_with_list(car, self.parking_line_list) and not arcade.check_for_collision_with_list(car, self.parking_slot_border_list) and not car.is_parked:
-            car.is_parked = True
-            print("Parked succesfully")
-            self.setup()
+        self.setup()
+        arcade.run()
+        self.on_draw()
 
+    def render(self):
+        self.window.on_draw()
 
-        if arcade.check_for_collision_with_list(car, self.parking_line_list) or arcade.check_for_collision_with_list(car, self.parking_slot_border_list):
-            car.is_parked = False
+    def reset(self):
+        self.player_car_list[0].remove()
+        self.car_sprite = Car.Car("assets/Car.png", 0.15)
+        self.car_sprite.center_x = 100
+        self.car_sprite.center_y = 500
+        self.player_car_list.append(self.car_sprite)
 
-    def collision_method(self, car):
+    def step(self,action):
 
-        if arcade.check_for_collision_with_list(car, self.parking_block_list) or arcade.check_for_collision_with_list(car, self.parked_car_list):
-            self.setup()
-            return True
+        self.control_ai(self.action)
 
-
-    def on_update(self, delta_time):
-        """
-        All the logic to move, and the game logic goes here.
-        Normally, you'll call update() on the sprite lists that
-        need it.
-        """
-        #self.action = random.randrange(1, 7)
-        #self.control_ai(self.action)
-
-        # Czynności podejmowane w zależności od wciśniętych klawiszy.
         if self.pressed_up == True and self.pressed_down == False:
             self.car_sprite.acceleration()
         if self.pressed_up == False and self.pressed_down == False:
@@ -217,22 +218,23 @@ class Game(arcade.Window):
         if (self.pressed_right == False and self.pressed_left == False) or self.car_sprite.is_breaking == True:
             self.car_sprite.stop_angle()
 
-        self.player_car_list.update()
+
 
         self.parking_method(self.car_sprite)
-
-        if (self.collision_method(self.car_sprite)):
-            print("Działa")
-
-        #anulowanie randomowego wcisniecia klawisza przez ai
-        #self.pressed_up = False
-        #self.pressed_down = False
-        #self.pressed_left = False
-        #self.pressed_right = False
+        self.collision_method(self.car_sprite)
 
 
 
-    #sterowanie pojazdem
+
+
+
+        self.pressed_up = False
+        self.pressed_down = False
+        self.pressed_left = False
+        self.pressed_right = False
+
+
+
     def on_key_press(self, key, key_modifiers):
         if key == arcade.key.UP:
             self.pressed_up = True
@@ -277,5 +279,3 @@ class Game(arcade.Window):
             self.pressed_down = True
             self.pressed_left = True
             print('6')
-
-
