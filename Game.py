@@ -75,14 +75,19 @@ class Game(arcade.Window):
             else:
                 cars_to_spawn = random.sample(self.spawn_points,self.parked_car_number)
         else:
+            number = 0
             cars_to_spawn = []
             for spawn_point in self.spawn_points:
-                if spawn_point[0] in [3,9,11,16]:
+                if spawn_point[0] in [3]:
                     pass
                 else:
                     cars_to_spawn.append(spawn_point)
         for spawn_point in cars_to_spawn:
-            number = random.randrange(1, 10)
+            if number < 10:
+                pass
+            else:
+                number = 0
+            number += 1
             self.parked_car_sprite = Car.Car(f"assets/Car{number}.png", 0.15)
             self.parked_car_sprite.center_x = spawn_point[1]
             self.parked_car_sprite.center_y = spawn_point[2]
