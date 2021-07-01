@@ -84,6 +84,7 @@ def eval_genomes(genomes,config):
     game = Game()
     game.time = 0
 
+
     nets = []
     cars = []
     ge = []
@@ -95,17 +96,18 @@ def eval_genomes(genomes,config):
         ge.append(genome)
 
 
-
+    print(len(cars))
 
 
     pygame.init()
     window = WIN
+    window.blit(backround, [0, 0])
     clock = pygame.time.Clock()
     delta = 0.0
     max_tps = 60
 
     for car in cars:
-        car.draw(window)
+        car.draw(WIN)
 
 
     parking_block = []
@@ -134,98 +136,101 @@ def eval_genomes(genomes,config):
 
 
 
-
+    print("1")
     run = True
     while run and len(cars)>0:
         delta += clock.tick(60)
-        while delta > 1 / max_tps:
-            delta -= 1 / max_tps
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    sys.exit(0)
-            clock.tick(60)
-            window.blit(backround,[0,0])
-            game.action_time += 1
-            game.time += 1
 
-            for x, car in enumerate(cars):
-                ge[x].fitness = game.org_distance - car.distance
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                sys.exit(0)
+        clock.tick(60)
 
-                if game.action_time == 5:
-                    game.action_time = 0
-                    inputs = 0 # do zrobienia
-                    output = nets[cars.index(car)].activate(inputs)
+        game.action_time += 1
+        game.time += 1
 
-                    game.control_ai(car,game.action(output))
+        for x, car in enumerate(cars):
+            ge[x].fitness = game.org_distance - car.distance
 
-                if car.pressed_up == True and car.pressed_down == False:
-                    car.acceleration()
-                if car.pressed_up == False and car.pressed_down == False:
+            if game.action_time == 5:
+                game.action_time = 0
+
+                inp = [random.randrange(0,100),random.randrange(0,100),random.randrange(0,100),random.randrange(0,100),random.randrange(0,100),random.randrange(0,100),random.randrange(0,100),random.randrange(0,100),random.randrange(0,100),random.randrange(0,100),car.distance]
+
+                inputs = 0 # do zrobienia
+                output = nets[cars.index(car)].activate(inp)
+
+                game.control_ai(car,game.action(output[0]))
+
+            if car.pressed_up == True and car.pressed_down == False:
+                car.acceleration()
+            if car.pressed_up == False and car.pressed_down == False:
                     car.deacceleration()
-                if car.pressed_down == True and car.pressed_up == False and \
-                        car.current_speed > car.car_stop:
-                    car.car_break()
-                    car.is_breaking = True
-                if car.pressed_down == False:
-                    car.is_breaking = False
-                if car.pressed_down == True and car.is_breaking == False:
-                    car.car_back()
-                if car.pressed_left == True and car.pressed_right == False:
-                    car.left()
-                if car.pressed_right == True and car.pressed_left == False:
-                    car.right()
-                if (car.pressed_right == False and car.pressed_left == False) or car.is_breaking == True:
-                    car.stop_angle()
+            if car.pressed_down == True and car.pressed_up == False and \
+                    car.current_speed > car.car_stop:
+                car.car_break()
+                car.is_breaking = True
+            if car.pressed_down == False:
+                car.is_breaking = False
+            if car.pressed_down == True and car.is_breaking == False:
+                car.car_back()
+            if car.pressed_left == True and car.pressed_right == False:
+                car.left()
+            if car.pressed_right == True and car.pressed_left == False:
+                car.right()
+            if (car.pressed_right == False and car.pressed_left == False) or car.is_breaking == True:
+                car.stop_angle()
 
-            for x,car in enumerate(cars):
-                for park in parked_cars:
-                    if car.polygon.intersects(park.polygon):
-                        ge[x].fitness -= 2000
-                        nets.pop(cars.index(car))
-                        ge.pop(cars.index(car))
-                        cars.pop(cars.index(car))
-
-
-            for x,car in enumerate(cars):
-                for block in parking_block:
-                    if car.polygon.intersects(block):
-                        car.bug += 1
-                        if car.bug > 1:
-                            ge[x].fitness -= 2000
-                            nets.pop(cars.index(car))
-                            ge.pop(cars.index(car))
-                            cars.pop(cars.index(car))
-
-            for x,car in enumerate(cars):
-                if game.park(car,parking_place,parking_lane):
-                    ge[x].fitness += 1000
-                    nets.pop(cars.index(car))
-                    ge.pop(cars.index(car))
-                    cars.pop(cars.index(car))
+          #  for x,car in enumerate(cars):
+           #     for park in parked_cars:
+           #         if car.polygon.intersects(park.polygon):
+           #             ge[x].fitness -= 2000
+           #             nets.pop(cars.index(car))
+           #             ge.pop(cars.index(car))
+          #              cars.pop(cars.index(car))
 
 
+            #for x,car in enumerate(cars):
+            #   for block in parking_block:
+             #      if car.polygon.intersects(block):
+             #           car.bug += 1
+             #           if car.bug > 1:
+             #               ge[x].fitness -= 2000
+             #               nets.pop(cars.index(car))
+              #              ge.pop(cars.index(car))
+             #               cars.pop(cars.index(car))
 
-            if game.time > 800:
-                for car in cars:
-                    nets.pop(cars.index(car))
-                    ge.pop(cars.index(car))
-                    cars.pop(cars.index(car))
+        #    for x,car in enumerate(cars):
+        #        if game.park(car,parking_place,parking_lane):
+         #           ge[x].fitness += 1000
+         #           nets.pop(cars.index(car))
+         #           ge.pop(cars.index(car))
+         #           cars.pop(cars.index(car))
 
-                car.update()
-                car.uptade_polygon()
 
-                car.draw(window)
+        print(game.time)
+        if game.time > 800:
+            
+            for car in cars:
+                nets.pop(cars.index(car))
+                ge.pop(cars.index(car))
+                cars.pop(cars.index(car))
+
+        car.update()
+        car.uptade_polygon()
+
+        car.draw(window)
                     #pygame.draw.circle(window, center=[car.center_x, car.center_y], radius=10, color=[255, 0, 0, 255])
-            for par in parking_block:
-                par.draw(window)
-            for par in parking_place:
-                par.draw(window)
-            for par in parking_lane:
-                par.draw(window)
-            for car in parked_cars:
-                car.draw(window)
-            pygame.display.flip()
-            clock.tick(0)
+        for par in parking_block:
+            par.draw(WIN)
+        for par in parking_place:
+            par.draw(WIN)
+        for par in parking_lane:
+            par.draw(WIN)
+        for car in parked_cars:
+            car.draw(WIN)
+        pygame.display.flip()
+        clock.tick(0)
 
 
 def run(config_file):
@@ -239,7 +244,7 @@ def run(config_file):
     p.add_reporter(stats)
 
     # Run for up to 50 generations.
-    winner = p.run(eval_genomes, 100)
+    winner = p.run(eval_genomes, 10)
 
     # show final stats
     print('\nBest genome:\n{!s}'.format(winner))
