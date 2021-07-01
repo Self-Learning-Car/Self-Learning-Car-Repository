@@ -1,11 +1,21 @@
-import arcade
+import pygame
 import math
 import numpy
 
-class Car(arcade.Sprite):
-    def __init__(self, image, scale):
+class Car():
+    def __init__(self, asset="assets/Car_mini.png" ):
+#165 82
+        self.surface = pygame.image.load(asset)
+        #self.surface = pygame.transform.scale(self.surface, (165, 82))
+        self.rotate_surface = self.surface
+        self.center_x = 100
+        self.center_y = 500
 
-        super().__init__(image, scale, hit_box_algorithm='Detailed', hit_box_detail=4)
+        self.pressed_up = False
+        self.pressed_down = False
+        self.pressed_left = False
+        self.pressed_right = False
+
 
         # Maksymalna prędkość pojazdu.
         self.max_speed = 8.0
@@ -30,14 +40,12 @@ class Car(arcade.Sprite):
         # Czy pojazd jest zaparkowany
         self.is_parked = False
 
-        self.heading = self.angle
-        self.car_position = numpy.array([100, 500])
-        self.wheel_base = self.width-20
+        self.heading = 0
+        self.car_position = numpy.array([self.center_x, self.center_y])
+        self.wheel_base = 82-20 # do zrobieania
         self.front_wheel = numpy.array([None,None])
         self.back_wheel = numpy.array([None,None])
         self.steer_angle = 0
-
-
 
 
     def acceleration(self):
@@ -126,5 +134,15 @@ class Car(arcade.Sprite):
             self.center_x = self.car_position[0]
             self.center_y = self.car_position[1]
 
-            self.angle = self.heading
 
+            #self.rotate_surface = self.rot_center(self.surface, -self.heading)
+
+    def draw(self,screen):
+        #screen.blit(self.rotate_surface,[self.center_x-82.5,self.center_y-41]) # do zoe
+        self.blitRotateCenter(screen,self.rotate_surface,[self.center_x-82.5,self.center_y-41],-self.heading)
+
+    def blitRotateCenter(self, surf, image, topleft, angle):
+        rotated_image = pygame.transform.rotate(image, angle)
+        new_rect = rotated_image.get_rect(center=image.get_rect(topleft=topleft).center)
+
+        surf.blit(rotated_image, new_rect)

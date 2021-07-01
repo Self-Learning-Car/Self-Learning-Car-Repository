@@ -8,9 +8,18 @@ from shapely.geometry import Polygon, LineString
 import random
 
 class Sensors():
-    def __init__(self, car, parked_car_list):
+    def __init__(self, car, parked_car_list, parking_block_list):
 
-        self.lenghts = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        self.object_list = []
+
+        for x in parked_car_list:
+            self.object_list.append(x)
+
+        for x in parking_block_list:
+            self.object_list.append(x)
+
+        #TABLICA DO PRZEKAZANIA DLA AI
+        self.lenghts = [200, 200, 200, 200, 200, 200, 200, 200, 200, 200]
 
         lenght = 200
         #lenght_front = 200
@@ -76,15 +85,23 @@ class Sensors():
                              x[0], x[1],
                              arcade.color.RED, 2)
 
-        for endline in sensor:
+        for n, endline in enumerate(sensor):
             #pojedyncza linia wyznaczona z punktu początkowego i końcowego
             self.l = LineString([[car.center_x, car.center_y], [endline[0], endline[1]]])
             #sprawdzanie czy linia przecina poligon
-            for kek in parked_car_list:
+            for kek in self.object_list:
                 self.p = Polygon(kek.get_adjusted_hit_box())
                 self.intersect = self.l.intersection(self.p).representative_point()
                 list(self.intersect.coords)
 
                 if self.intersect:
                     arcade.draw_circle_filled(self.intersect.x, self.intersect.y, 5, arcade.color.GREEN)
+
+                    car_center = [car.center_x, car.center_y]
+                    center = [self.intersect.x, self.intersect.y]
+
+                    self.lenghts[n] = math.dist(car_center, center)
+
+        #print(self.lenghts)
+
         pass
