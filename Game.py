@@ -87,6 +87,10 @@ def eval_genomes(genomes,config):
     nets = []
     cars = []
     ge = []
+
+
+
+
     for genome_id, genome in genomes:
         genome.fitness = game.org_distance
         net = neat.nn.FeedForwardNetwork.create(genome, config)
@@ -106,7 +110,6 @@ def eval_genomes(genomes,config):
 
     for car in cars:
         car.draw(window)
-
 
     parking_block = []
     game.parking.add_parking_block(parking_block)
@@ -153,7 +156,9 @@ def eval_genomes(genomes,config):
 
                 if game.action_time == 5:
                     game.action_time = 0
-                    inputs = 0 # do zrobienia
+                    car.sensor(WIN, parking_block, parked_cars)
+                    inputs = car.lengths
+                    inputs.append(car.distance)
                     output = nets[cars.index(car)].activate(inputs)
 
                     game.control_ai(car,game.action(output))
@@ -184,6 +189,8 @@ def eval_genomes(genomes,config):
                         nets.pop(cars.index(car))
                         ge.pop(cars.index(car))
                         cars.pop(cars.index(car))
+
+
 
 
             for x,car in enumerate(cars):

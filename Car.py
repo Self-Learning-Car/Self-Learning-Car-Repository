@@ -1,7 +1,7 @@
 import pygame
 import math
 import numpy
-from shapely.geometry import Polygon
+from shapely.geometry import Polygon, LineString
 
 class Car():
     def __init__(self, width,height,x,y,image):
@@ -55,7 +55,6 @@ class Car():
         self.front_wheel = numpy.array([None,None])
         self.back_wheel = numpy.array([None,None])
         self.steer_angle = 0
-
 
     def acceleration(self):
         """
@@ -174,4 +173,59 @@ class Car():
         cord2 = (cordx2, cordy2)
 
         self.polygon = Polygon([cord,cord1,cord3,cord2])
+
+    def sensory(self, window, parking_block, parked_cars):
+        self.object_list = []
+        #TABLICA DO PRZEKAZANIA DLA AI
+        self.lengths = [200, 200, 200, 200, 200, 200, 200, 200, 200, 200]
+        self.sensor = []
+        self.point_angle = [360, 340, 300, 240, 200, 180, 160, 120, 60, 20]
+        self.length = 200
+
+        self.create_sensors_endpoints()
+        self.add_obstacles(parking_block, parked_cars)
+        self.draw_sensors(window)
+        #wywołanie metody, która rysuje punkt w miejscu przecięcia linii z poligonem
+        self.distance_point(window)
+
+    def add_obstacles(self, parked_car_list, parking_block_list):
+        for x in parked_car_list:
+            self.object_list.append(x)
+
+        for x in parking_block_list:
+            self.object_list.append(x)
+
+    def create_sensors_endpoints(self, car):
+        for x in self.point_angle:
+            tabx = car.center_x + math.cos(math.radians(x - (-car.angle))) * self.length
+            taby = car.center_y + math.sin(math.radians(x - (-car.angle))) * self.length
+            tab = [tabx, taby]
+            self.sensor.append(tab)
+
+    def draw_sensors(self, window):
+        self.create_sensors_endpoints()
+        #rysowanie linii
+        for n, x in enumerate(self.sensor):
+            pygame.draw.line(window, (255, 0, 0, 255), (self.center_x, self.center_y), (x[0], x[1]), 2)
+
+    #mierzenie odległości metodą punktową
+    #(ma dziwne problemy z utrzymaniem punktu w jednym miejscu,
+    # zdaża się że punkt przeskakuje z jednego boku poligonu na inny,
+    # co psuje pomiar)
+    def distance_point(self, window):
+        for n, endline in enumerate(self.sensor):
+            #pojedyncza linia wyznaczona z punktu początkowego i końcowego
+            self.l = LineString([[self.center_x, self.center_y], [endline[0], endline[1]]])
+            #sprawdzanie czy linia przecina poligon
+            for kek in self.object_list:
+                self.p = Polygon(kek.get_adjusted_hit_box())
+                self.intersect = self.l.intersection(self.p).representative_point()
+
+                if self.intersect:
+                    pygame.draw.circle(window, (0, 255, 0, 255), (self.intersect[0], self.intersect[1]), 10)
+
+                    car_center = [self.center_x, self.center_y]
+                    center = [self.intersect.x, self.intersect.y]
+
+                    self.lengths[n] = math.dist(car_center, center)
 
