@@ -33,8 +33,8 @@ class Car(arcade.Sprite):
         self.heading = self.angle
         self.car_position = numpy.array([100, 500])
         self.wheel_base = self.width-20
-        self.front_wheel = numpy.array([None,None])
-        self.back_wheel = numpy.array([None,None])
+        self.front_wheel = numpy.array([None, None])
+        self.back_wheel = numpy.array([None, None])
         self.steer_angle = 0
 
 
@@ -114,14 +114,14 @@ class Car(arcade.Sprite):
 
 
 
-            self.front_wheel = self.car_position + self.wheel_base/2 * numpy.array([math.cos(math.radians(self.heading)),math.sin(math.radians(self.heading))])
-            self.back_wheel = self.car_position - self.wheel_base/2* numpy.array([math.cos(math.radians(self.heading)),math.sin(math.radians(self.heading))])
+            self.front_wheel = self.car_position + self.wheel_base/2 * numpy.array([math.cos(math.radians(self.heading)), math.sin(math.radians(self.heading))])
+            self.back_wheel = self.car_position - self.wheel_base/2 * numpy.array([math.cos(math.radians(self.heading)), math.sin(math.radians(self.heading))])
 
-            self.back_wheel += self.current_speed * numpy.array([math.cos(math.radians(self.heading)),math.sin(math.radians(self.heading))])
-            self.front_wheel += self.current_speed * numpy.array([math.cos(math.radians(self.heading+self.steer_angle)),math.sin(math.radians(self.heading+self.steer_angle))])
+            self.back_wheel += self.current_speed * numpy.array([math.cos(math.radians(self.heading)), math.sin(math.radians(self.heading))])
+            self.front_wheel += self.current_speed * numpy.array([math.cos(math.radians(self.heading+self.steer_angle)), math.sin(math.radians(self.heading+self.steer_angle))])
 
             self.car_position = (self.front_wheel + self.back_wheel)/2
-            self.heading = math.degrees(math.atan2(self.front_wheel[1]-self.back_wheel[1],self.front_wheel[0]-self.back_wheel[0]))
+            self.heading = math.degrees(math.atan2(self.front_wheel[1]-self.back_wheel[1], self.front_wheel[0]-self.back_wheel[0]))
 
             self.center_x = self.car_position[0]
             self.center_y = self.car_position[1]

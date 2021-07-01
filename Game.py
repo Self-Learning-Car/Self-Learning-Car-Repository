@@ -39,8 +39,7 @@ class Game(arcade.Window):
 
         arcade.set_background_color(arcade.color.AMAZON)
 
-        self.setup()
-        arcade.run()
+
 
         # If you have sprite lists, you should create them here,
         # and set them to None
@@ -92,7 +91,7 @@ class Game(arcade.Window):
             self.parked_car_sprite.center_x = spawn_point[1]
             self.parked_car_sprite.center_y = spawn_point[2]
             self.parked_car_list.append(self.parked_car_sprite)
-            self.car_sprite.draw_hit_box
+            self.car_sprite.draw_hit_box()
 
     def setup(self):
         """ Set up the game variables. Call to re-start the game. """
@@ -124,6 +123,8 @@ class Game(arcade.Window):
         self.parking.add_parking_block(self.parking_block_list)
         self.parking.add_slot_border(self.parking_slot_border_list)
 
+        self.sensors = Sensors.Sensors(self.car_sprite, self.parked_car_list, self.parking_block_list)
+
     def on_draw(self):
         """
         Render the screen.
@@ -144,7 +145,7 @@ class Game(arcade.Window):
         self.parking_slot_border_list.draw()
 
         #rysowanie sensorów
-        self.sensors = Sensors.Sensors(self.car_sprite, self.parked_car_list, self.parking_block_list)
+        #self.sensors = Sensors.Sensors(self.car_sprite, self.parked_car_list, self.parking_block_list)
 
         #rysuje hitbox pojzadu głównego
         if self.hitbox_visible == True:
@@ -154,18 +155,27 @@ class Game(arcade.Window):
                 car.draw_hit_box(arcade.color.RED, 3)
 
             for slot in self.parking_slot_list:
-                slot.draw_hit_box(arcade.color.GREEN,3)
+                slot.draw_hit_box(arcade.color.GREEN, 3)
 
             for line in self.parking_line_list:
-                line.draw_hit_box(arcade.color.YELLOW,3)
+                line.draw_hit_box(arcade.color.YELLOW, 3)
 
             for block in self.parking_block_list:
-                block.draw_hit_box(arcade.color.RED,3)
+                block.draw_hit_box(arcade.color.RED, 3)
 
             for border in self.parking_slot_border_list:
-                border.draw_hit_box(arcade.color.YELLOW,1)
+                border.draw_hit_box(arcade.color.YELLOW, 1)
 
         # Call draw() on all your sprite lists below
+
+        print('szerokosc')
+        print(self.car_sprite.width)
+        print('wysokosc ')
+        print(self.car_sprite.height)
+
+        #self.sensors.create_sensors_endpoints(self.car_sprite)
+        self.sensors.draw_sensors(self.car_sprite)
+        self.sensors.distance_point(self.car_sprite)
 
 
     def parking_method(self, car):
@@ -229,6 +239,8 @@ class Game(arcade.Window):
         #self.pressed_right = False
 
 
+
+        print('on_update')
 
     #sterowanie pojazdem
     def on_key_press(self, key, key_modifiers):
