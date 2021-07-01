@@ -59,15 +59,40 @@ class Parking:
                                                            ( parking_slot.width,  parking_slot.height))
             list.append(parking_slot)
 
-    def add_parking_slot_ai(self, list):
-        parking_slot = Parking_part("assets/Empty.png")
-        parking_slot.center_x = self.parking_slot_position[11][0]
-        parking_slot.center_y = self.parking_slot_position[11][1]
+    def add_parking_slot_ai(self, list1,list2,asset):
+        parking_slot = Parking_part(asset)
+        parking_slot.center_x = self.parking_slot_position[14][0]
+        parking_slot.center_y = self.parking_slot_position[14][1]
         parking_slot.width = self.parking_slot_width
         parking_slot.height = self.parking_slot_height
         parking_slot.surface = pygame.transform.scale(parking_slot.surface,
                                                        (parking_slot.width, parking_slot.height))
-        list.append(parking_slot)
+        list1.append(parking_slot)
+        slot_border = Parking_part(asset)
+        slot_border.center_x = self.parking_slot_position[14][0]
+        slot_border.center_y = self.parking_slot_position[14][1]
+        slot_border.center_y += (self.parking_line_height / 2) + 1
+        slot_border.width = self.parking_slot_width
+        slot_border.height = self.slot_border_height
+        slot_border.surface = pygame.transform.scale(slot_border.surface,
+                                                     (slot_border.width, slot_border.height))
+        list2.append(slot_border)
+        parking_line = Parking_part(asset)
+        parking_line.center_x = self.parking_line_position[16][0]
+        parking_line.center_y = self.parking_line_position[16][1]
+        parking_line.width = self.parking_line_width
+        parking_line.height = self.parking_line_height
+        parking_line.surface = pygame.transform.scale(parking_line.surface,
+                                                      (parking_line.width, parking_line.height))
+        list2.append(parking_line)
+        parking_line = Parking_part(asset)
+        parking_line.center_x = self.parking_line_position[15][0]
+        parking_line.center_y = self.parking_line_position[15][1]
+        parking_line.width = self.parking_line_width
+        parking_line.height = self.parking_line_height
+        parking_line.surface = pygame.transform.scale(parking_line.surface,
+                                                      (parking_line.width, parking_line.height))
+        list2.append(parking_line)
 
 
     def add_parking_lane(self,list):

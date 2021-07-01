@@ -1,13 +1,13 @@
-import arcade
-from Game import Game
+import os
 
-SCREEN_WIDTH = 1900
-SCREEN_HEIGHT = 1000
-SCREEN_TITLE = "Self Learning Car"
+import Game
+
+
 
 if __name__ == '__main__':
-   game = Game()
-   game.eval_genomes()
+   local_dir = os.path.dirname(__file__)
+   config_path = os.path.join(local_dir, 'config_feedforward.txt')
+   Game.run(config_path)
 
 
 

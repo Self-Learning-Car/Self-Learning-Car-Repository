@@ -3,20 +3,21 @@ import math
 import numpy
 from shapely.geometry import Polygon
 
-class Car(pygame.sprite.Sprite):
-    def __init__(self, color,width,height):
-        pygame.sprite.Sprite.__init__(self)
+class Car():
+    def __init__(self, width,height,x,y,image):
+
 #165 82
-        self.image = pygame.Surface([width, height])
-        self.image.fill(color)
+        self.image = pygame.image.load(image)
+
         #self.surface = pygame.image.load(asset)
         self.width = width
         self.height = height
-        self.rect = self.image.get_rect()
         #self.rotate_surface = self.surface
-        self.center_x = 100
-        self.center_y = 500
+        self.center_x = x
+        self.center_y = y
         self.polygon = Polygon([(0,0), (0,0), (0,0), (0,0)])
+        self.distance = math.sqrt((1140 - self.center_x)**2 + (230-self.center_y)**2)
+        self.bug = 0
 
 
         self.pressed_up = False
@@ -50,7 +51,7 @@ class Car(pygame.sprite.Sprite):
 
         self.heading = 0
         self.car_position = numpy.array([self.center_x, self.center_y])
-        self.wheel_base = 165-20 # do zrobieania
+        self.wheel_base = 165-20
         self.front_wheel = numpy.array([None,None])
         self.back_wheel = numpy.array([None,None])
         self.steer_angle = 0
@@ -147,7 +148,7 @@ class Car(pygame.sprite.Sprite):
 
     def draw(self,screen):
         #screen.blit(self.rotate_surface,[self.center_x-82.5,self.center_y-41]) # do zoe
-        self.blitRotateCenter(screen,self.image,[self.center_x-82.5,self.center_y-41],-self.heading)
+        self.blitRotateCenter(screen,self.image,[self.center_x-self.width/2,self.center_y-self.height/2],-self.heading)
 
     def blitRotateCenter(self, surf, image, topleft, angle):
         rotated_image = pygame.transform.rotate(image, angle)
@@ -156,8 +157,21 @@ class Car(pygame.sprite.Sprite):
         surf.blit(rotated_image, new_rect)
 
     def uptade_polygon(self):
-        self.polygon = Polygon([(self.center_x - self.width / 2, self.center_y - self.height/2),
-                                (self.center_x - self.width / 2, self.center_y + self.height/2),
-                                (self.center_x + self.width / 2, self.center_y + self.height/2),
-                                (self.center_x + self.width / 2, self.center_y - self.height/2)])
+        cordx = self.center_x + math.cos(math.radians(25 - (-self.heading))) * 80
+        cordy = self.center_y + math.sin(math.radians(25 - (-self.heading))) * 80
+        cord = (cordx, cordy)
+
+        cordx1 = self.center_x + math.cos(math.radians(335 - (-self.heading))) * 80
+        cordy1 = self.center_y + math.sin(math.radians(335 - (-self.heading))) * 80
+        cord1 = (cordx1, cordy1)
+
+        cordx3 = self.center_x + math.cos(math.radians(205 - (-self.heading))) * 80
+        cordy3 = self.center_y + math.sin(math.radians(205 - (-self.heading))) * 80
+        cord3 = (cordx3, cordy3)
+
+        cordx2 = self.center_x + math.cos(math.radians(155 - (-self.heading))) * 80
+        cordy2 = self.center_y + math.sin(math.radians(155 - (-self.heading))) * 80
+        cord2 = (cordx2, cordy2)
+
+        self.polygon = Polygon([cord,cord1,cord3,cord2])
 
