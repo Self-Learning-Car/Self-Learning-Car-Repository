@@ -1,15 +1,23 @@
 import pygame
 import math
 import numpy
+from shapely.geometry import Polygon
 
-class Car():
-    def __init__(self, asset="assets/Car_mini.png" ):
+class Car(pygame.sprite.Sprite):
+    def __init__(self, color,width,height):
+        pygame.sprite.Sprite.__init__(self)
 #165 82
-        self.surface = pygame.image.load(asset)
-        #self.surface = pygame.transform.scale(self.surface, (165, 82))
-        self.rotate_surface = self.surface
+        self.image = pygame.Surface([width, height])
+        self.image.fill(color)
+        #self.surface = pygame.image.load(asset)
+        self.width = width
+        self.height = height
+        self.rect = self.image.get_rect()
+        #self.rotate_surface = self.surface
         self.center_x = 100
         self.center_y = 500
+        self.polygon = Polygon([(0,0), (0,0), (0,0), (0,0)])
+
 
         self.pressed_up = False
         self.pressed_down = False
@@ -42,7 +50,7 @@ class Car():
 
         self.heading = 0
         self.car_position = numpy.array([self.center_x, self.center_y])
-        self.wheel_base = 82-20 # do zrobieania
+        self.wheel_base = 165-20 # do zrobieania
         self.front_wheel = numpy.array([None,None])
         self.back_wheel = numpy.array([None,None])
         self.steer_angle = 0
@@ -139,10 +147,17 @@ class Car():
 
     def draw(self,screen):
         #screen.blit(self.rotate_surface,[self.center_x-82.5,self.center_y-41]) # do zoe
-        self.blitRotateCenter(screen,self.rotate_surface,[self.center_x-82.5,self.center_y-41],-self.heading)
+        self.blitRotateCenter(screen,self.image,[self.center_x-82.5,self.center_y-41],-self.heading)
 
     def blitRotateCenter(self, surf, image, topleft, angle):
         rotated_image = pygame.transform.rotate(image, angle)
         new_rect = rotated_image.get_rect(center=image.get_rect(topleft=topleft).center)
 
         surf.blit(rotated_image, new_rect)
+
+    def uptade_polygon(self):
+        self.polygon = Polygon([(self.center_x - self.width / 2, self.center_y - self.height/2),
+                                (self.center_x - self.width / 2, self.center_y + self.height/2),
+                                (self.center_x + self.width / 2, self.center_y + self.height/2),
+                                (self.center_x + self.width / 2, self.center_y - self.height/2)])
+
