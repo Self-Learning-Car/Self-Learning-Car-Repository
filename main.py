@@ -24,6 +24,9 @@ class Car(pygame.sprite.Sprite):
         self.body_mask = pygame.mask.from_surface(self.body_image)
         self.body = self.body_image.get_rect()
 
+        self.rot_image = self.body_image
+        self.rot_body = self.rot_image.get_rect()
+
 
 
         self.pozycja = [100,500]
@@ -36,16 +39,50 @@ class Car(pygame.sprite.Sprite):
 
         self.num = 0
 
+        self.heading = 0
+        self.car_position = numpy.array([self.pozycja[0]+self.width/2, self.pozycja[1]+self.height/2])
+        self.wheel_base = 165 - 20
+        self.front_wheel = numpy.array([None, None])
+        self.back_wheel = numpy.array([None, None])
+        self.steer_angle = 0
+
 
     def draw(self, win):
         self.blitRotateCenter(win,self.body_image,self.pozycja,self.angle)
 
-
     def update(self):
-        self.pozycja[0] += math.cos(math.radians(360 - self.angle)) * self.speed
-        self.pozycja[1] += math.sin(math.radians(360 - self.angle)) * self.speed
+        """
+        Metoda odpowiedzialna za zmianę pozycji pojazdu.
+        """
+        if self.speed != 0:
+            self.front_wheel = self.car_position + self.wheel_base / 2 * numpy.array(
+                [math.cos(math.radians(self.heading)), math.sin(math.radians(self.heading))])
+            self.back_wheel = self.car_position - self.wheel_base / 2 * numpy.array(
+                [math.cos(math.radians(self.heading)), math.sin(math.radians(self.heading))])
+
+            self.back_wheel += self.speed * numpy.array(
+                [math.cos(math.radians(self.heading)), math.sin(math.radians(self.heading))])
+            self.front_wheel += self.speed * numpy.array(
+                [math.cos(math.radians(self.heading + self.steer_angle)),
+                 math.sin(math.radians(self.heading + self.steer_angle))])
+
+            self.car_position = (self.front_wheel + self.back_wheel) / 2
+            self.heading = math.degrees(
+                math.atan2(self.front_wheel[1] - self.back_wheel[1], self.front_wheel[0] - self.back_wheel[0]))
+
+            self.body.centerx = self.car_position[0]
+            self.body.centery = self.car_position[1]
+
+            self.pozycja = self.body.topleft
+
+            self.angle = -self.heading
 
 
+
+
+    def get_mask(self):
+        self.rot_image.convert_alpha()
+        return pygame.mask.from_surface(self.rot_image)
 
     def distance(self,x,y):
         dist = math.sqrt((self.body.centerx - x)**2 + (self.body.centery - y)**2)
@@ -55,32 +92,44 @@ class Car(pygame.sprite.Sprite):
         rotated_image = pygame.transform.rotate(image, angle)
         new_rect = rotated_image.get_rect(center=image.get_rect(topleft=topleft).center)
 
+        self.rot_image = rotated_image
+        self.rot_body = new_rect
+
         surf.blit(rotated_image, new_rect)
 
     def forward(self):
         if self.speed < 20:
-            self.speed += 3
+            self.speed += 5
 
     def backward(self):
         if self.speed > - 20:
-            self.speed -= 3
+            self.speed -= 5
 
     def left(self):
-        self.angle += 0.4 * self.speed
+
+        if self.speed != 0:
+            self.steer_angle = - 35
 
     def right(self):
-        self.angle -= 0.4 * self.speed
+        if self.speed !=0:
+            self.steer_angle = 35
 
-    def random_act(self):
-        act = random.randrange(0,6)
+    def stop(self):
+        self.steer_angle = 0
+
+    def random_act(self,act):
+
         if act == 0:
             self.forward()
         elif act == 1:
             self.backward()
         elif act == 2:
             self.right()
-        else:
+        elif act == 3:
             self.left()
+        else:
+            self.stop()
+
 
 ########################################################################################################################
 ########################################################################################################################
@@ -204,7 +253,7 @@ def eval_genomes():
     while run and len(cars) > 0:
         clock.tick(60)
 
-        act_time += 1
+        act_time += 0
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -212,20 +261,46 @@ def eval_genomes():
                 pygame.quit()
                 quit()
                 break
+        keys = pygame.key.get_pressed()
+
+        if keys[pygame.K_UP]:
+
+
+            cars[0].random_act(0)
+        if keys[pygame.K_DOWN]:
+
+
+            cars[0].random_act(1)
+        if keys[pygame.K_RIGHT]:
+
+
+            cars[0].random_act(2)
+        if keys[pygame.K_LEFT]:
+
+
+            cars[0].random_act(3)
+
+
 
         if act_time == 5:
             act_time = 0
             for car in cars:
-                car.random_act()
+                #car.random_act(akcja)
 
 
-
+                car_mask = car.get_mask()
                 for obs in obstacles:
                     offset = (int(car.pozycja[0] - obs.x),int(car.pozycja[1] - obs.y))
-                    result = obs.obstacle_mask.overlap(car.body_mask, offset)
+
+                    result = obs.obstacle_mask.overlap(car_mask, offset)
                     if result:
                         print(car.num)
                         car.num = car.num + 1
+
+                for obs in obstacles:
+                    if pygame.Rect.colliderect(car.rot_body,obs.obstacle_body):
+                        print("cos")
+
         for car in cars:
             car.update()
         screen.blit(map, (0, 0))
@@ -251,6 +326,7 @@ def run(config_file):
 ########################################################################################################################
 
 if __name__ == '__main__':
-    local_dir = os.path.dirname(__file__)
-    config_path = os.path.join(local_dir, 'config-feedforward.txt')
-    run(config_path)
+    #local_dir = os.path.dirname(__file__)
+    #config_path = os.path.join(local_dir, 'config-feedforward.txt')
+    #run(config_path)
+    eval_genomes()
