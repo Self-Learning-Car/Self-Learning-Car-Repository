@@ -1,5 +1,6 @@
 import math
 
+import numpy
 import pygame
 import random
 import os
@@ -22,10 +23,64 @@ class Car(pygame.sprite.Sprite):
         self.body_image = pygame.image.load('assets/Car.png').convert_alpha()
         self.body_mask = pygame.mask.from_surface(self.body_image)
         self.body = self.body_image.get_rect()
-        self.angle = 2
+
+
+
+        self.pozycja = [100,500]
+        self.width = 165
+        self.height = 65
+
+        self.speed = 0
+
+        self.angle = 0
 
         self.num = 0
 
+
+    def draw(self, win):
+        self.blitRotateCenter(win,self.body_image,self.pozycja,self.angle)
+
+
+    def update(self):
+        self.pozycja[0] += math.cos(math.radians(360 - self.angle)) * self.speed
+        self.pozycja[1] += math.sin(math.radians(360 - self.angle)) * self.speed
+
+
+
+    def distance(self,x,y):
+        dist = math.sqrt((self.body.centerx - x)**2 + (self.body.centery - y)**2)
+        return dist
+
+    def blitRotateCenter(self, surf, image, topleft, angle):
+        rotated_image = pygame.transform.rotate(image, angle)
+        new_rect = rotated_image.get_rect(center=image.get_rect(topleft=topleft).center)
+
+        surf.blit(rotated_image, new_rect)
+
+    def forward(self):
+        if self.speed < 20:
+            self.speed += 3
+
+    def backward(self):
+        if self.speed > - 20:
+            self.speed -= 3
+
+    def left(self):
+        self.angle += 0.4 * self.speed
+
+    def right(self):
+        self.angle -= 0.4 * self.speed
+
+    def random_act(self):
+        act = random.randrange(0,6)
+        if act == 0:
+            self.forward()
+        elif act == 1:
+            self.backward()
+        elif act == 2:
+            self.right()
+        else:
+            self.left()
 
 ########################################################################################################################
 ########################################################################################################################
@@ -85,18 +140,14 @@ class Prize():
 #rysujemy auta itp
 def draw_window(win, cars, obstacles):
 
-    #for car in cars:
-    car = cars[0]
-    mx, my = pygame.mouse.get_pos()
-    win.blit(car.body_image, (mx, my))
+
+    for car in cars:
+        car.draw(win)
+
 
     for obstacle in obstacles:
         win.blit(obstacle.obstacle_image, (obstacle.x, obstacle.y))
-        offset = (mx - obstacle.x, my - obstacle.y)
-        result = obstacle.obstacle_mask.overlap(car.body_mask, offset)
-        if result:
-            print(car.num)
-            car.num = car.num + 1
+
 
 def eval_genomes():
 
@@ -145,11 +196,15 @@ def eval_genomes():
     pygame.init()
     screen = pygame.display.set_mode((1900, 1000))
     map = pygame.image.load('assets/Map.png')
+    act_time = 0
+
 
     clock = pygame.time.Clock()
     run = True
     while run and len(cars) > 0:
         clock.tick(60)
+
+        act_time += 1
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -158,19 +213,44 @@ def eval_genomes():
                 quit()
                 break
 
+        if act_time == 5:
+            act_time = 0
+            for car in cars:
+                car.random_act()
 
 
+
+                for obs in obstacles:
+                    offset = (int(car.pozycja[0] - obs.x),int(car.pozycja[1] - obs.y))
+                    result = obs.obstacle_mask.overlap(car.body_mask, offset)
+                    if result:
+                        print(car.num)
+                        car.num = car.num + 1
+        for car in cars:
+            car.update()
         screen.blit(map, (0, 0))
         draw_window(screen, cars, obstacles)
         pygame.display.flip()
         clock.tick(0)
 
-def run():
-    eval_genomes()
+def run(config_file):
+    config = neat.config.Config(neat.DefaultGenome, neat.DefaultReproduction,
+                         neat.DefaultSpeciesSet, neat.DefaultStagnation,
+                         config_file)
+    p = neat.Population(config)
+    p.add_reporter(neat.StdOutReporter(True))
+    stats = neat.StatisticsReporter()
+    p.add_reporter(stats)
+
+    winner = p.run(eval_genomes, 50)
+
+    print('\nBest genome:\n{!s}'.format(winner))
 
 ########################################################################################################################
 ########################################################################################################################
 ########################################################################################################################
 
 if __name__ == '__main__':
-    run()
+    local_dir = os.path.dirname(__file__)
+    config_path = os.path.join(local_dir, 'config-feedforward.txt')
+    run(config_path)
