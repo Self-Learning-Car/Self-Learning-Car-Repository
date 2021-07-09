@@ -25,7 +25,6 @@ class Car(pygame.sprite.Sprite):
         self.body_image = self.image.convert_alpha()
         self.body_mask = pygame.mask.from_surface(self.body_image)
         self.body = self.body_image.get_rect()
-        self.rect = self.body_image.get_rect()
 
         self.to_delete = False
 
@@ -45,6 +44,8 @@ class Car(pygame.sprite.Sprite):
         self.na_lini = False
         self.distance_b = 0
 
+        self.car_parked = False
+
     def draw(self, win):
         self.blitRotateCenter(win,self.body_image,self.pozycja,self.angle)
 
@@ -52,9 +53,6 @@ class Car(pygame.sprite.Sprite):
     def update(self):
         self.pozycja[0] += math.cos(math.radians(360 - self.angle)) * self.speed
         self.pozycja[1] += math.sin(math.radians(360 - self.angle)) * self.speed
-        #self.rect.move(self.pozycja[0]-self.width/2,self.pozycja[1]-self.height/2)
-
-
 
     def distance(self,x,y):
         dist = math.sqrt((self.body.centerx - x)**2 + (self.body.centery - y)**2)
@@ -83,7 +81,6 @@ class Car(pygame.sprite.Sprite):
             self.angle += -15
 
     def random_act(self,act):
-        
         if act == 0:
             self.forward()
         elif act == 1:
@@ -143,7 +140,7 @@ class Prize():
         self.naparkingu = False
 
     def draw(self, win):
-        win.blit(self.img, (self.x, self.y))
+        win.blit(self.parking_image, (self.x, self.y))
 
 ########################################################################################################################
 ########################################################################################################################
@@ -267,14 +264,6 @@ def eval_genomes(genomes, config):
                 quit()
                 break
 
-
-
-
-
-
-
-
-
         if act_time == 3:
             act_time = 0
             for x, car in enumerate(cars):
@@ -283,16 +272,14 @@ def eval_genomes(genomes, config):
                 car.distance_b = car.distance(856,774)
                 car.numver_of_moves += 1
 
+                output = nets[cars.index(car)].activate((car.speed,car.angle,car.pozycja[0],car.pozycja[1],
+                                                         car.distance(856,774),car.distance(710,774),
+                                                         car.distance(1000,774)))
 
-
-                #inputs = [car.speed,car.angle,car.pozycja[0],car.pozycja[1],car.distance(520,700)]
-
-                output = nets[cars.index(car)].activate((car.speed,car.angle,car.pozycja[0],car.pozycja[1],car.distance(856,774),car.distance(710,774),car.distance(1000,774)))
                 i = output.index(max(output))
 
 
                 if i == 0:
-
                     car.forward()
                 elif i == 1:
                     car.backward()
@@ -317,8 +304,6 @@ def eval_genomes(genomes, config):
                 else:
                     car.na_parkingu= False
 
-
-
                 for obs in obstacles:
                     offset = (int(car.pozycja[0] - obs.x),int(car.pozycja[1] - obs.y))
                     result = obs.obstacle_mask.overlap(car.body_mask, offset)
@@ -326,14 +311,14 @@ def eval_genomes(genomes, config):
                         car.to_delete = True
                         ge[x].fitness -= -50
 
-                if car.na_parkingu and not car.na_lini:
+                if car.na_parkingu and not car.na_lini and not car.car_parked:
                     ge[x].fitness += 500
-
-
+                    car.car_parked = True
 
                 if car.numver_of_moves > 100:
                     car.to_delete = True
-                    ge[x].fitness -= 500
+                    if not car.car_parked:
+                        ge[x].fitness -= 500
 
                 if car.to_delete:
                     nets.pop(cars.index(car))
