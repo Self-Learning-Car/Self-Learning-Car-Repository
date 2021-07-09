@@ -44,7 +44,8 @@ class Car(pygame.sprite.Sprite):
         self.na_lini = False
         self.distance_b = 0
 
-        self.car_parked = False
+        self.is_parked = 0
+
 
     def draw(self, win):
         self.blitRotateCenter(win,self.body_image,self.pozycja,self.angle)
@@ -79,6 +80,9 @@ class Car(pygame.sprite.Sprite):
     def right(self):
         if self.speed != 0:
             self.angle += -15
+
+    def stop(self):
+        self.speed = 0
 
     def random_act(self,act):
         if act == 0:
@@ -274,7 +278,8 @@ def eval_genomes(genomes, config):
 
                 output = nets[cars.index(car)].activate((car.speed,car.angle,car.pozycja[0],car.pozycja[1],
                                                          car.distance(856,774),car.distance(710,774),
-                                                         car.distance(1000,774)))
+                                                         car.distance(1000,774),car.distance(856,150),car.distance(710,150),
+                                                         car.distance(1000,150),car.distance(856,850,),car.is_parked))
 
                 i = output.index(max(output))
 
@@ -287,6 +292,8 @@ def eval_genomes(genomes, config):
                     car.left()
                 elif i ==3 :
                     car.right()
+                elif i == 4:
+                    car.stop()
 
                 for parking_line in parking_lines:
                     screen.blit(parking_line.parkline_image, (parking_line.x, parking_line.y))
@@ -304,6 +311,7 @@ def eval_genomes(genomes, config):
                 else:
                     car.na_parkingu= False
 
+
                 for obs in obstacles:
                     offset = (int(car.pozycja[0] - obs.x),int(car.pozycja[1] - obs.y))
                     result = obs.obstacle_mask.overlap(car.body_mask, offset)
@@ -311,13 +319,14 @@ def eval_genomes(genomes, config):
                         car.to_delete = True
                         ge[x].fitness -= -50
 
-                if car.na_parkingu and not car.na_lini and not car.car_parked:
-                    ge[x].fitness += 500
-                    car.car_parked = True
+                if car.na_parkingu and not car.na_lini:
+                    ge[x].fitness += 100
+                    car.is_parked = 1
+
 
                 if car.numver_of_moves > 100:
                     car.to_delete = True
-                    if not car.car_parked:
+                    if car.is_parked == 0:
                         ge[x].fitness -= 500
 
                 if car.to_delete:
@@ -342,7 +351,7 @@ def run(config_file):
     stats = neat.StatisticsReporter()
     p.add_reporter(stats)
 
-    winner = p.run(eval_genomes, 50)
+    winner = p.run(eval_genomes, 10000)
 
     print('\nBest genome:\n{!s}'.format(winner))
 
